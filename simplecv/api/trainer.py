@@ -1,10 +1,10 @@
 import os
-from util.logger import Logger
-from util.checkpoint import CheckPoint
-from data.iterator import Iterator
+from simplecv.util.logger import Logger
+from simplecv.util.checkpoint import CheckPoint
+from simplecv.data.iterator import Iterator
 import time
 from torch.optim.lr_scheduler import _LRScheduler
-from opt.learning_rate import LearningRateBase
+from simplecv.opt.learning_rate import LearningRateBase
 import functools
 import types
 

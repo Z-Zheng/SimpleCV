@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 import simplecv
 
 install_requires = [
-
+    'numpy>=1.11.1'
 ]
 setup(
     name='simplecv',

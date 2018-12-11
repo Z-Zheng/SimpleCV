@@ -1,4 +1,4 @@
-from util import registry
+from simplecv.util import registry
 
 
 def make_model(config):

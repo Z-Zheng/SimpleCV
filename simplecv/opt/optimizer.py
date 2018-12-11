@@ -1,5 +1,5 @@
 import torch.optim
-from util import registry
+from simplecv.util import registry
 
 registry.OPT.register('sgd', torch.optim.SGD)
 registry.OPT.register('adam', torch.optim.Adam)

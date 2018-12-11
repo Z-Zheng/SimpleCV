@@ -1,5 +1,5 @@
 import numpy as np
-from util import registry
+from simplecv.util import registry
 
 
 def make_learningrate(config):

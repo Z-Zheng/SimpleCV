@@ -1,13 +1,13 @@
 import argparse
 import torch
 import torch.nn as nn
-from model.model_builder import make_model
-from data.data_loader import make_dataloader
-from opt.optimizer import make_optimizer
-from opt.learning_rate import make_learningrate
-from util import config
-from api import trainer
-from util import param_util
+from simplecv.model.model_builder import make_model
+from simplecv.data.data_loader import make_dataloader
+from simplecv.opt.optimizer import make_optimizer
+from simplecv.opt.learning_rate import make_learningrate
+from simplecv.util import config
+from simplecv.api import trainer
+from simplecv.util import param_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int)
