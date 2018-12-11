@@ -4,7 +4,7 @@ config = dict(
     optimizer=dict(
         type='',
     ),
-    lr=dict(
+    learning_rate=dict(
         type='multistep',
         params=dict(
             base_lr=0.01,
