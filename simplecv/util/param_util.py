@@ -1,4 +1,4 @@
-from util.logger import get_logger
+from simplecv.util.logger import get_logger
 
 logger = get_logger(__name__)
 

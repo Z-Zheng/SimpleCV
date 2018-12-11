@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict
 import torch
 import json
-from util.logger import get_logger, save_log, restore_log
+from simplecv.util.logger import get_logger, save_log, restore_log
 
 logger = get_logger(__name__)
 
