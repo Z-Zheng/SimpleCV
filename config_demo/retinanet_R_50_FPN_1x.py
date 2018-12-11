@@ -1,8 +1,31 @@
 config = dict(
-    model=dict(),
-    data=dict(),
+    model=dict(
+        type='deeplabv3',
+        params=dict(
+
+        )
+    ),
+    data=dict(
+        train=dict(
+            type='detdataloader',
+            params=dict(
+
+            ),
+        ),
+        test=dict(
+            type='detdataloader',
+            params=dict(
+
+            ),
+        )
+    ),
     optimizer=dict(
-        type='',
+        type='sgd',
+        params=dict(
+            lr=0.01,
+            momentum=0.9,
+            weight_decay=0.0001
+        )
     ),
     learning_rate=dict(
         type='multistep',
@@ -19,5 +42,8 @@ config = dict(
         forward_times=1,
         num_iters=90000,
     ),
-    test=dict(),
+    test=dict(
+        batch_size_per_device=2,
+        num_gpu=0
+    ),
 )

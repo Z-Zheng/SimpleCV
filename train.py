@@ -7,6 +7,7 @@ from opt.optimizer import make_optimizer
 from opt.learning_rate import make_learningrate
 from util import config
 from api import trainer
+from util import param_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int)
@@ -24,14 +25,15 @@ def main():
 
     torch.cuda.set_device(local_rank)
     # 1. data
-    data_loader = make_dataloader(cfg['data'])
+    traindata_loader = make_dataloader(cfg['data']['train'])
+    testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
     # 2. model
     model = make_model(cfg['model'])
     model = nn.parallel.DistributedDataParallel(
         model, device_ids=[local_rank], output_device=local_rank,
     )
     # 3. optimizer
-    optimizer = make_optimizer(cfg['optimizer'])
+    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])
     tl = trainer.Launcher(
         model_dir=args.model_dir,
@@ -39,7 +41,7 @@ def main():
         optimizer=optimizer,
         lr_schedule=lr_schedule)
 
-    tl.train_by_config(data_loader, config=cfg['train'])
+    tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':

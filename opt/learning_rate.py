@@ -1,9 +1,14 @@
 import numpy as np
 from util import registry
 
+
 def make_learningrate(config):
-    lr_module = registry.LR[config['type']]
-    return lr_module(**config['params'])
+    lr_type = config['type']
+    if lr_type in registry.LR:
+        lr_module = registry.LR[lr_type]
+        return lr_module(**config['params'])
+    else:
+        raise ValueError('{} is not support now.'.format(lr_type))
 
 
 def set_lr(optimizer, lr):

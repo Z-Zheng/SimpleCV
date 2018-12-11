@@ -5,6 +5,8 @@ from data.iterator import Iterator
 import time
 from torch.optim.lr_scheduler import _LRScheduler
 from opt.learning_rate import LearningRateBase
+import functools
+import types
 
 
 class Launcher(object):
@@ -78,7 +80,10 @@ class Launcher(object):
         self._optimizer.step()
         self._optimizer.zero_grad()
 
+        self._update_lr()
         self._ckpt.step()
+
+    def _update_lr(self):
         if isinstance(self._lr_schedule, LearningRateBase):
             self._lr_schedule.step(self._ckpt.global_step, self._optimizer)
         elif isinstance(self._lr_schedule, _LRScheduler):
@@ -86,12 +91,13 @@ class Launcher(object):
         else:
             raise NotImplementedError()
 
-    def train_iters(self, data_loader, num_iters=-1, forward_times=2):
-        iterator = Iterator(data_loader)
+    def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2):
+        iterator = Iterator(train_data_loader)
 
         while self._ckpt.global_step < num_iters:
             start = time.time()
-            data_list = iterator.next(forward_times, call_backs=[self._ckpt.save])
+            data_list = iterator.next(forward_times,
+                                      call_backs=[self._ckpt.save, functools.partial(self.evaluate, test_data_loader)])
             loss_dict = self.compute_loss_gradient(data_list)
             self.apply_gradient()
             time_cost = time.time() - start
@@ -99,8 +105,8 @@ class Launcher(object):
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
 
-    def train_epochs(self, data_loader, num_epochs=-1, forward_times=2):
-        iterator = Iterator(data_loader)
+    def train_epochs(self, train_data_loader, test_data_loader=None, num_epochs=-1, forward_times=2):
+        iterator = Iterator(train_data_loader)
         for i in range(num_epochs):
             for data_list in iterator.iter(forward_times=forward_times):
                 start = time.time()
@@ -111,19 +117,22 @@ class Launcher(object):
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                        time_cost=time_cost, lr=self.lr)
             self._ckpt.save()
+            self.evaluate(test_data_loader)
 
-    def train_by_config(self, data_loader, config):
+    def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         forward_times = 1 if 'forward_times' in config else config['forward_times']
         self._logger.forward_times(forward_times)
         if 'num_epochs' in config and 'num_iters' not in config:
             self._logger.equation('num_epochs', config['num_epochs'])
-            self._logger.equation('num_iters', config['num_epochs'] * len(data_loader))
-            self.train_epochs(data_loader, num_epochs=config['num_epochs'], forward_times=forward_times)
+            self._logger.equation('num_iters', config['num_epochs'] * len(train_data_loader))
+            self.train_epochs(train_data_loader, test_data_loader=test_data_loader, num_epochs=config['num_epochs'],
+                              forward_times=forward_times)
 
         elif 'num_epochs' not in config and 'num_iters' in config:
-            self._logger.approx_equation('num_epochs', round(config['num_iters'] / len(data_loader), 1))
+            self._logger.approx_equation('num_epochs', round(config['num_iters'] / len(train_data_loader), 1))
             self._logger.equation('num_iters', config['num_iters'])
-            self.train_iters(data_loader, num_iters=config['num_iters'], forward_times=forward_times)
+            self.train_iters(train_data_loader, test_data_loader=test_data_loader, num_iters=config['num_iters'],
+                             forward_times=forward_times)
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
 
@@ -136,6 +145,9 @@ class Launcher(object):
 
     def evaluate(self, data_loader):
         raise NotImplementedError
+
+    def override_evaluate(self, fn):
+        self.evaluate = types.MethodType(fn, self)
 
 
 def scale_dict(input_dict, scale):
