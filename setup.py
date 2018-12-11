@@ -24,7 +24,7 @@ setup(
     author='Zhuo Zheng',
     author_email='zhuozheng_2017@163.com',
     license='GPLv3',
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    setup_requires=[],
+    tests_require=[],
     install_requires=install_requires,
     zip_safe=False)
