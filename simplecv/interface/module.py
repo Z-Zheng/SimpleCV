@@ -20,3 +20,11 @@ class Loss(CVModule):
 
     def forward(self, *input):
         raise NotImplementedError
+
+
+class LearningRateBase(object):
+    def __init__(self):
+        pass
+
+    def step(self, global_step, optimizer):
+        raise NotImplementedError

@@ -1,5 +1,6 @@
 import numpy as np
 from simplecv.util import registry
+from simplecv.interface import LearningRateBase
 
 
 def make_learningrate(config):
@@ -14,14 +15,6 @@ def make_learningrate(config):
 def set_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
-
-
-class LearningRateBase(object):
-    def __init__(self):
-        pass
-
-    def step(self, global_step, optimizer):
-        raise NotImplementedError
 
 
 @registry.LR.register('multistep')
