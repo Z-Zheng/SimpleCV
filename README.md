@@ -29,7 +29,7 @@ class Deeplabv3plus(CVModule):
 ### 2. Define your dataloader and register it with one line code.
 ```python
 from torch.utils.data import DataLoader
-from util import registry
+from simplecv import registry
 registry.DATALOADER.register('my_data_loader')
 class CustomDataLoader(DataLoader):
     def __init__(self,...):
@@ -41,7 +41,7 @@ class CustomDataLoader(DataLoader):
 ```python
 # support all naive optimizers and learning rate schedules in Pytorch
 import torch.optim
-from util import registry
+from simplecv.util import registry
 
 registry.OPT.register('sgd', torch.optim.SGD)
 registry.OPT.register('adam', torch.optim.Adam)

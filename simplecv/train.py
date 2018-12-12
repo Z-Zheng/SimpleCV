@@ -17,7 +17,7 @@ parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
 
 
-def main(local_rank, config_path, model_dir):
+def run(local_rank, config_path, model_dir):
     # 0. config
     cfg = config.import_config(config_path)
 
@@ -46,6 +46,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     assert args.config_path is not None, 'The config file is needed.'
     assert args.model_dir is not None, 'The model dir is needed.'
-    main(local_rank=args.local_rank,
-         config_path=args.config_path,
-         model_dir=args.model_dir)
+    run(local_rank=args.local_rank,
+        config_path=args.config_path,
+        model_dir=args.model_dir)
