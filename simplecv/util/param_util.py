@@ -1,4 +1,5 @@
 from simplecv.util.logger import get_logger
+from functools import reduce
 
 logger = get_logger(__name__)
 
@@ -12,6 +13,29 @@ def trainable_parameters(module):
         total = idx + 1
     logger.info('[trainable params] {}/{}'.format(len(ret), total))
     return ret
+
+
+def count_model_parameters(module):
+    cnt = 0
+    for p in module.parameters():
+        cnt += reduce(lambda x, y: x * y, list(p.shape))
+    logger.info('#params: {}, {} M'.format(cnt, round(cnt / float(1e6), 3)))
+
+    return cnt
+
+
+def freeze_params(module):
+    for name, p in module.named_parameters():
+        p.requires_grad = False
+        logger.info('[freeze params] {name}'.format(name=name))
+
+
+def freeze_modules(module, specific_class=None):
+    for m in module.modules():
+        if specific_class is not None:
+            if not isinstance(m, specific_class):
+                continue
+        freeze_params(m)
 
 
 if __name__ == '__main__':

@@ -17,11 +17,9 @@ parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
 
 
-def main():
-    local_rank = args.local_rank
-    config_path = args.config_path
+def main(local_rank, config_path, model_dir):
     # 0. config
-    cfg = config.read_file(config_path)
+    cfg = config.import_config(config_path)
 
     torch.cuda.set_device(local_rank)
     # 1. data
@@ -36,7 +34,7 @@ def main():
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])
     tl = trainer.Launcher(
-        model_dir=args.model_dir,
+        model_dir=model_dir,
         model=model,
         optimizer=optimizer,
         lr_schedule=lr_schedule)
@@ -48,4 +46,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     assert args.config_path is not None, 'The config file is needed.'
     assert args.model_dir is not None, 'The model dir is needed.'
-    main()
+    main(local_rank=args.local_rank,
+         config_path=args.config_path,
+         model_dir=args.model_dir)

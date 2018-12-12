@@ -1,4 +1,8 @@
-# SimpleCV
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Z-Zheng/images_repo/master/logo.png"><br><br>
+</div>
+
+---------------------
 This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ## Features
 1. High performance parallel training using Pytorch 1.0
@@ -10,8 +14,8 @@ TODO
 ## Usage
 ### 1. Define your model using CVModule and register it with one line code.
 ```python
-from interface.module import CVModule
-from util import registry
+from simplecv.interface.module import CVModule
+from simplecv.util import registry
 
 # register your model
 registry.MODEL.register('deeplabv3plus')
