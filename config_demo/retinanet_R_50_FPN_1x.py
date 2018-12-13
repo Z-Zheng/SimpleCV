@@ -1,21 +1,102 @@
 config = dict(
     model=dict(
-        type='deeplabv3',
+        type='retinanet',
         params=dict(
-
+            encoder=dict(
+                type='resnet_encoder',
+                params=dict(
+                    resnet_type='resnet50',
+                    pretrained=False,
+                    batchnoram_trainable=False,
+                    freeze_at=2,
+                    include_conv5=True,
+                )
+            ),
+            decoder=dict(
+                type='fpn',
+                params=dict(
+                    fpn_dim=256,
+                    in_feat_channels=(512, 1024, 2048),
+                    extra_convs=2,
+                ),
+            ),
+            head=dict(
+                type='retinanet_head',
+                params=dict(
+                    num_classes=81,
+                    num_convs=4,
+                    conv_dim=256,
+                    prior_probability=0.01,
+                    use_softmax=False,
+                    scales_per_octave=3,
+                    aspect_ratios=(1.0, 2.0, 0.5),
+                    anchor_scale=4.,
+                    bbox_reg_weights=(1., 1., 1., 1.)
+                )
+            ),
+            loss=dict(
+                bbox_loss=dict(
+                    type='smoothl1',
+                    params=dict(
+                        beta=0.11,
+                        weight=1.0,
+                    ),
+                ),
+                cls_loss=dict(
+                    type='sigmoid_focalloss',
+                    params=dict(
+                        alpha=0.25,
+                        gamma=2.,
+                        weight=1.0
+                    )
+                )
+            ),
+            match=dict(
+                type='defalut',
+                params=dict(
+                    positive_overlap=0.5,
+                    negative_overlap=0.4,
+                )
+            ),
+            preprocess=dict(
+                type='',
+                params=dict(
+                    mean=(0.485, 0.456, 0.406),
+                    std=(0.229, 0.224, 0.225),
+                    min_size=600,
+                    max_size=1333,
+                    size_divisor=128,
+                ),
+            ),
+            postprocess=dict(
+                type='nms',
+                params=dict(
+                    inference_threshold=0.05,
+                    pre_nms_top_n=1000,
+                    num_detections_per_im=100,
+                    nms_thresh=0.5,
+                )
+            )
         )
     ),
     data=dict(
         train=dict(
             type='detdataloader',
             params=dict(
-
+                image_dir='./coco2017/val2017',
+                annotation_path='./coco2017/annotations/instances_val2017.json',
+                batch_size=2,
+                num_workers=0,
+                pin_memory=True,
+                drop_last=False,
+                timeout=0,
             ),
         ),
         test=dict(
-            type='detdataloader',
+            type='det_test_dataloader',
             params=dict(
-
+                image_dir='./coco2017/val2017',
+                annotation_path='./coco2017/annotations/instances_val2017.json',
             ),
         )
     ),
@@ -37,13 +118,9 @@ config = dict(
             warmup_init_lr=0.01 / 3, ),
     ),
     train=dict(
-        batch_size_per_device=2,
-        num_gpu=0,
         forward_times=1,
         num_iters=90000,
     ),
     test=dict(
-        batch_size_per_device=2,
-        num_gpu=0
     ),
 )
