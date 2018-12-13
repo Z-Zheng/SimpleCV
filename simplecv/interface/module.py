@@ -5,8 +5,7 @@ class CVModule(nn.Module):
     def __init__(self, config):
         super(CVModule, self).__init__()
         self._cfg = dict(
-            type='',
-            params=dict()
+
         )
         self.set_defalut_config()
         self._update_config(config)

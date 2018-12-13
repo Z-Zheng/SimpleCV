@@ -1,6 +1,7 @@
 import argparse
 import torch
 import torch.nn as nn
+import torch.distributed as dist
 from simplecv.model.model_builder import make_model
 from simplecv.data.data_loader import make_dataloader
 from simplecv.opt.optimizer import make_optimizer
@@ -21,15 +22,17 @@ def run(local_rank, config_path, model_dir):
     # 0. config
     cfg = config.import_config(config_path)
 
-    torch.cuda.set_device(local_rank)
+    if torch.cuda.is_available():
+        torch.cuda.set_device(local_rank)
     # 1. data
     traindata_loader = make_dataloader(cfg['data']['train'])
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
     # 2. model
     model = make_model(cfg['model'])
-    model = nn.parallel.DistributedDataParallel(
-        model, device_ids=[local_rank], output_device=local_rank,
-    )
+    if dist.is_available():
+        model = nn.parallel.DistributedDataParallel(
+            model, device_ids=[local_rank], output_device=local_rank,
+        )
     # 3. optimizer
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])

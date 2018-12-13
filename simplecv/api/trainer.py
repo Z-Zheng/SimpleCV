@@ -14,13 +14,18 @@ class Launcher(object):
                  model_dir,
                  model,
                  optimizer,
-                 lr_schedule):
+                 lr_schedule,
+                 master=True):
         self._model_dir = model_dir
         self._model = model
         self._optimizer = optimizer
         self._lr_schedule = lr_schedule
-
+        self._master = master
         self._logger = Logger('SimpleCV', use_tensorboard=True, tensorboard_logdir=model_dir)
+        if master:
+            self._logger.on()
+        else:
+            self._logger.off()
         self._ckpt = CheckPoint(self)
         self.init()
 
@@ -59,7 +64,7 @@ class Launcher(object):
         loss_dict = {'total_loss': 0.0}
 
         for d in data:
-            losses = self._model(d)
+            losses = self._model(*d)
             # scale losses by 1. / forward times
             losses = scale_dict(losses, 1. / len(data))
 
@@ -93,11 +98,12 @@ class Launcher(object):
 
     def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2):
         iterator = Iterator(train_data_loader)
-
+        call_backs = [self._ckpt.save, functools.partial(self.evaluate, test_data_loader)] if self._master else None
         while self._ckpt.global_step < num_iters:
             start = time.time()
+
             data_list = iterator.next(forward_times,
-                                      call_backs=[self._ckpt.save, functools.partial(self.evaluate, test_data_loader)])
+                                      call_backs=call_backs)
             loss_dict = self.compute_loss_gradient(data_list)
             self.apply_gradient()
             time_cost = time.time() - start
@@ -116,10 +122,13 @@ class Launcher(object):
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                        time_cost=time_cost, lr=self.lr)
-            self._ckpt.save()
-            self.evaluate(test_data_loader)
+
+            if self._master:
+                self._ckpt.save()
+                self.evaluate(test_data_loader)
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
+        self.model.train()
         forward_times = 1 if 'forward_times' in config else config['forward_times']
         self._logger.forward_times(forward_times)
         if 'num_epochs' in config and 'num_iters' not in config:
@@ -129,7 +138,8 @@ class Launcher(object):
                               forward_times=forward_times)
 
         elif 'num_epochs' not in config and 'num_iters' in config:
-            self._logger.approx_equation('num_epochs', round(config['num_iters'] / len(train_data_loader), 1))
+            self._logger.approx_equation('num_epochs',
+                                         round(config['num_iters'] * forward_times / len(train_data_loader), 1))
             self._logger.equation('num_iters', config['num_iters'])
             self.train_iters(train_data_loader, test_data_loader=test_data_loader, num_iters=config['num_iters'],
                              forward_times=forward_times)

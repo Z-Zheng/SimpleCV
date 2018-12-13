@@ -19,12 +19,21 @@ class Logger(object):
                  use_tensorboard=False,
                  tensorboard_logdir=None):
         self._logger = logging.getLogger(name)
+        self._level = level
         self._logger.setLevel(level)
         self.use_tensorboard = use_tensorboard
         if self.use_tensorboard and tensorboard_logdir is None:
             raise ValueError('logdir is not None if you use tensorboard')
         if self.use_tensorboard:
             self.summary_w = tensorboardX.SummaryWriter(log_dir=tensorboard_logdir)
+
+    def on(self):
+        self._logger.setLevel(self._level)
+        self.use_tensorboard = True
+
+    def off(self):
+        self._logger.setLevel(100)
+        self.use_tensorboard = False
 
     def train_log(self, step, loss_dict, time_cost, lr, metric_dict=None):
         loss_info = ''.join(
