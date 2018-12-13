@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.distributed as dist
-from simplecv.model.model_builder import make_model
+from simplecv.module.model_builder import make_model
 from simplecv.data.data_loader import make_dataloader
 from simplecv.opt.optimizer import make_optimizer
 from simplecv.opt.learning_rate import make_learningrate

@@ -27,7 +27,8 @@ def count_model_parameters(module):
 def freeze_params(module):
     for name, p in module.named_parameters():
         p.requires_grad = False
-        logger.info('[freeze params] {name}'.format(name=name))
+        # todo: show complete name
+        # logger.info('[freeze params] {name}'.format(name=name))
 
 
 def freeze_modules(module, specific_class=None):

@@ -49,3 +49,5 @@ OPT = Registry()
 DATALOADER = Registry()
 MODEL = Registry()
 LOSS = Registry()
+OP = Registry()
+

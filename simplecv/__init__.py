@@ -8,7 +8,7 @@ from simplecv import util
 from simplecv.util import registry
 from simplecv.util.config import import_config
 
-from simplecv import model
+from simplecv import module
 from simplecv import opt
 from simplecv import data
 

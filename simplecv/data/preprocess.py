@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import torch
-import torch.nn.functional as F
+
+from simplecv.data._th_preprocess import _th_resize_to_range
+from simplecv.data._np_preprocess import _np_resize_to_range
 
 
 def divisible_pad(image_list, size_divisor=128, to_tensor=True):
@@ -51,37 +53,6 @@ def resize_to_range(image, min_size, max_size):
         raise ValueError('The type {} is not support'.format(type(image)))
 
 
-def _th_resize_to_range(image, min_size, max_size):
-    h = image.size(0)
-    w = image.size(1)
-    c = image.size(2)
-    im_size_min = min(h, w)
-    im_size_max = max(h, w)
-
-    im_scale = min(min_size / im_size_min, max_size / im_size_max)
-
-    image = F.interpolate(image.permute(2, 0, 1).view(1, c, h, w), scale_factor=im_scale, mode='bilinear')
-    return image, im_scale
-
-
-def _np_resize_to_range(image, min_size, max_size):
-    im_shape = image.shape
-    im_size_min = np.min(im_shape[0:2])
-    im_size_max = np.max(im_shape[0:2])
-
-    im_scale = min(min_size / im_size_min, max_size / im_size_max)
-
-    image = cv2.resize(
-        image,
-        None,
-        None,
-        fx=im_scale,
-        fy=im_scale,
-        interpolation=cv2.INTER_LINEAR
-    )
-    return image, im_scale
-
-
 def rotate_90(image, mask=None, boxes=None):
     ret = []
     new_image = np.rot90(image, k=1)
@@ -128,6 +99,70 @@ def flip_left_right(image, mask=None, boxes=None):
         ret.append(new_boxes)
 
     return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def scale_image_and_label(image, scale_factor, max_stride=32, mask=None, fixed_size=None):
+    """
+
+    Args:
+        image: 3-D of shape [height, width, channel]
+        scale_factor: a float number
+        max_stride:
+        mask: 2-D of shape [height, width]
+        fixed_size: a tuple of (fixed height, fixed width)
+    Returns:
+
+    """
+    resized_im = cv2.resize(image, None, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
+    im_h, im_w = resized_im.shape[0:2]
+    dst_h = int(np.ceil(im_h / max_stride) * max_stride)
+    dst_w = int(np.ceil(im_w / max_stride) * max_stride)
+    if fixed_size:
+        padded_im = np.zeros([fixed_size[0], fixed_size[1], 3], dtype=image.dtype)
+        padded_im[:im_h, :im_w, :] = resized_im
+    else:
+        padded_im = np.zeros([dst_h, dst_w, 3], dtype=image.dtype)
+        padded_im[:im_h, :im_w, :] = resized_im
+
+    if mask is not None:
+        resized_mask = cv2.resize(mask, None, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
+        if fixed_size:
+            padded_mask = np.zeros([fixed_size[0], fixed_size[1], 3], dtype=mask.dtype)
+            padded_mask[:im_h, :im_w, :] = resized_mask
+        else:
+            padded_mask = np.zeros([dst_h, dst_w], dtype=image.dtype)
+            padded_mask[:im_h, :im_w, :] = resized_mask
+        return padded_im, padded_mask
+    return padded_im
+
+
+def mean_std_normalize(image, mean=(123.675, 116.28, 103.53), std=(58.395, 57.12, 57.375)):
+    """
+
+    Args:
+        image: 3-D array of shape [height, width, channel]
+        mean:  a list or tuple
+        std: a list or tuple
+
+    Returns:
+
+    """
+    mean = np.array(mean, np.float32).reshape((1, 1, -1))
+    std = np.array(std, np.float32).reshape((1, 1, -1))
+    return (image - mean) / std
+
+
+def channel_last_to_first(image):
+    """
+
+    Args:
+        image: 3-D numpy array of shape [height, width, channel]
+
+    Returns:
+        new_image: 3-D numpy array of shape [channel, height, width]
+    """
+    new_image = np.transpose(image, axes=[2, 0, 1])
+    return new_image
 
 
 def flip_up_down(image, mask=None, boxes=None):
