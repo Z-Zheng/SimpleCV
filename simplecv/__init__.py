@@ -1,5 +1,3 @@
-__version__ = '0.1.0'
-
 from simplecv import api
 from simplecv.api.trainer import Launcher
 

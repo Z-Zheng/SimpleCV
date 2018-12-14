@@ -1,6 +1,6 @@
 import sys
 from setuptools import find_packages, setup
-import simplecv
+from simplecv.api import __version__
 
 install_requires = [
     'numpy>=1.11.1',
@@ -8,7 +8,7 @@ install_requires = [
 ]
 setup(
     name='simplecv',
-    version=simplecv.__version__,
+    version=__version__,
     description='Simplify training, evaluation, prediction in Pytorch',
     keywords='computer vision using pytorch 1.0',
     packages=find_packages(),
