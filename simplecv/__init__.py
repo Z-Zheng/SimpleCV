@@ -1,4 +1,3 @@
-from simplecv.version import __version__
 from simplecv import api
 from simplecv.api.trainer import Launcher
 
