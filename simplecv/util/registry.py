@@ -1,6 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-def _register_generic(module_dict, module_name, module):
-    assert module_name not in module_dict
+def _register_generic(module_dict, module_name, module, override=False):
+    if not override:
+        if module_name in module_dict:
+            raise ValueError('{} has been in module_dict.'.format(module_name))
     module_dict[module_name] = module
 
 
@@ -50,4 +52,3 @@ DATALOADER = Registry()
 MODEL = Registry()
 LOSS = Registry()
 OP = Registry()
-
