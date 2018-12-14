@@ -1,6 +1,6 @@
 import sys
 from setuptools import find_packages, setup
-from simplecv.api import __version__
+from simplecv.version import __version__
 
 install_requires = [
     'numpy>=1.11.1',
