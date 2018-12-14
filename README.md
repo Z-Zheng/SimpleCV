@@ -10,9 +10,17 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 3. Support tensorboard
 
 ## Installation
+
+--------------
+
 ```bash
 pip install git+https://github.com/Z-Zheng/simplecv.git
 ```
+#### Requirements:
+- pytorch == 1.0.0
+- tensorboardX
+- opencv
+
 ## Usage
 ### 1. Define your model using CVModule and register it with one line code.
 ```python
@@ -20,7 +28,7 @@ from simplecv.interface.module import CVModule
 from simplecv.util import registry
 
 # register your model
-registry.MODEL.register('deeplabv3plus')
+@registry.MODEL.register('deeplabv3plus')
 class Deeplabv3plus(CVModule):
     def __init__(self, config):
         super(Deeplabv3plus,self).__init__(config)
@@ -32,7 +40,8 @@ class Deeplabv3plus(CVModule):
 ```python
 from torch.utils.data import DataLoader
 from simplecv import registry
-registry.DATALOADER.register('my_data_loader')
+
+@registry.DATALOADER.register('my_data_loader')
 class CustomDataLoader(DataLoader):
     def __init__(self,...):
         super(CustomDataLoader, self).__init__(...)
