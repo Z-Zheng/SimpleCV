@@ -10,7 +10,9 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 3. Support tensorboard
 
 ## Installation
-TODO
+```bash
+pip install git+https://github.com/Z-Zheng/simplecv.git
+```
 ## Usage
 ### 1. Define your model using CVModule and register it with one line code.
 ```python

@@ -4,7 +4,7 @@ import simplecv
 
 install_requires = [
     'numpy>=1.11.1',
-    'tensorboardx',
+    'tensorboardX',
 ]
 setup(
     name='simplecv',
