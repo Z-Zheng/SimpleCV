@@ -32,15 +32,15 @@ class Registry(dict):
     def __init__(self, *args, **kwargs):
         super(Registry, self).__init__(*args, **kwargs)
 
-    def register(self, module_name, module=None):
+    def register(self, module_name, module=None, override=False):
         # used as function call
         if module is not None:
-            _register_generic(self, module_name, module)
+            _register_generic(self, module_name, module, override)
             return
 
         # used as decorator
         def register_fn(fn):
-            _register_generic(self, module_name, fn)
+            _register_generic(self, module_name, fn, override)
             return fn
 
         return register_fn
