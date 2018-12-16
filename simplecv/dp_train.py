@@ -11,7 +11,6 @@ from simplecv.api import trainer
 from simplecv.util import param_util
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--local_rank", type=int)
 parser.add_argument('--config_path', default=None, type=str,
                     help='path to config file')
 parser.add_argument('--model_dir', default=None, type=str,
@@ -19,23 +18,17 @@ parser.add_argument('--model_dir', default=None, type=str,
 parser.add_argument('--cpu', action='store_true', default=False, help='use cutout')
 
 
-def run(local_rank, config_path, model_dir):
+def run(config_path, model_dir, cpu_mode=False):
     # 0. config
     cfg = config.import_config(config_path)
 
     # 1. model
     model = make_model(cfg['model'])
-    if not args.cpu:
+
+    if not cpu_mode:
         if torch.cuda.is_available():
-            torch.cuda.set_device(local_rank)
-            dist.init_process_group(
-                backend="nccl", init_method="env://"
-            )
-        model.to(torch.device('cuda'))
-        if dist.is_available():
-            model = nn.parallel.DistributedDataParallel(
-                model, device_ids=[local_rank], output_device=local_rank,
-            )
+            model.to(torch.device('cuda'))
+            model = nn.DataParallel(model, device_ids=list(range(torch.cuda.device_count())))
 
     # 2. data
     traindata_loader = make_dataloader(cfg['data']['train'])
@@ -57,6 +50,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     assert args.config_path is not None, 'The config file is needed.'
     assert args.model_dir is not None, 'The model dir is needed.'
-    run(local_rank=args.local_rank,
-        config_path=args.config_path,
-        model_dir=args.model_dir)
+    run(config_path=args.config_path,
+        model_dir=args.model_dir,
+        cpu_mode=args.cpu)
