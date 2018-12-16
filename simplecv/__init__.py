@@ -9,5 +9,3 @@ from simplecv.util.config import import_config
 from simplecv import module
 from simplecv import opt
 from simplecv import data
-
-from simplecv import train
