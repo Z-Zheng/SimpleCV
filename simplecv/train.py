@@ -43,8 +43,7 @@ def run(local_rank, config_path, model_dir):
         model_dir=model_dir,
         model=model,
         optimizer=optimizer,
-        lr_schedule=lr_schedule,
-        master=local_rank == 0)
+        lr_schedule=lr_schedule)
 
     tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
 
