@@ -16,26 +16,31 @@ parser.add_argument('--config_path', default=None, type=str,
                     help='path to config file')
 parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
+parser.add_argument('--cpu', action='store_true', default=False, help='use cutout')
 
 
 def run(local_rank, config_path, model_dir):
     # 0. config
     cfg = config.import_config(config_path)
 
-    if torch.cuda.is_available():
-        torch.cuda.set_device(local_rank)
-        dist.init_process_group(
-            backend="nccl", init_method="env://"
-        )
-    # 1. data
+    # 1. model
+    model = make_model(cfg['model'])
+    if not args.cpu:
+        if torch.cuda.is_available():
+            torch.cuda.set_device(local_rank)
+            dist.init_process_group(
+                backend="nccl", init_method="env://"
+            )
+        model.to(torch.device('cuda'))
+        if dist.is_available():
+            model = nn.parallel.DistributedDataParallel(
+                model, device_ids=[local_rank], output_device=local_rank,
+            )
+
+    # 2. data
     traindata_loader = make_dataloader(cfg['data']['train'])
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
-    # 2. model
-    model = make_model(cfg['model'])
-    if dist.is_available():
-        model = nn.parallel.DistributedDataParallel(
-            model, device_ids=[local_rank], output_device=local_rank,
-        )
+
     # 3. optimizer
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])
