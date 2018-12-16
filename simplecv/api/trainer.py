@@ -1,4 +1,5 @@
 import os
+import torch.distributed as dist
 from simplecv.util.logger import Logger
 from simplecv.util.checkpoint import CheckPoint
 from simplecv.data.iterator import Iterator
@@ -9,20 +10,25 @@ import functools
 import types
 
 
+def get_rank():
+    if not dist.is_initialized():
+        return 0
+    return dist.get_rank()
+
+
 class Launcher(object):
     def __init__(self,
                  model_dir,
                  model,
                  optimizer,
-                 lr_schedule,
-                 master=True):
+                 lr_schedule):
         self._model_dir = model_dir
         self._model = model
         self._optimizer = optimizer
         self._lr_schedule = lr_schedule
-        self._master = master
+        self._master = get_rank() == 0
         self._logger = Logger('SimpleCV', use_tensorboard=True, tensorboard_logdir=model_dir)
-        if master:
+        if self._master:
             self._logger.on()
         else:
             self._logger.off()
