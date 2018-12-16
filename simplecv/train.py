@@ -24,6 +24,9 @@ def run(local_rank, config_path, model_dir):
 
     if torch.cuda.is_available():
         torch.cuda.set_device(local_rank)
+        dist.init_process_group(
+            backend="nccl", init_method="env://"
+        )
     # 1. data
     traindata_loader = make_dataloader(cfg['data']['train'])
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
