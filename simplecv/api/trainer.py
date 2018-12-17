@@ -139,7 +139,7 @@ class Launcher(object):
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         self.model.train()
-        forward_times = 1 if 'forward_times' in config else config['forward_times']
+        forward_times = config['forward_times'] if 'forward_times' in config else 1
         self._logger.equation('batch_size', train_data_loader.batch_sampler.batch_size)
         self._logger.forward_times(forward_times)
         if 'num_epochs' in config and 'num_iters' not in config:
@@ -181,23 +181,3 @@ def average_dict(input_dict):
     for k, v in input_dict.items():
         input_dict[k] = v.mean()
     return input_dict
-
-
-if __name__ == '__main__':
-    class A:
-        def __init__(self):
-            self.a = None
-
-        def set(self):
-            self.a['1'] = 1
-
-
-    def pppp(fs):
-        for f in fs:
-            f()
-
-    p = A()
-    fs = [p.set]
-    pppp(fs)
-
-    print(p.a)
