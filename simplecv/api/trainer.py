@@ -110,7 +110,7 @@ class Launcher(object):
 
     def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2):
         iterator = Iterator(train_data_loader)
-        call_backs = [self._ckpt.save, functools.partial(self.evaluate, test_data_loader)] if self._master else None
+        call_backs = [self._ckpt.save, functools.partial(self.evaluate, test_data_loader)]
         while self._ckpt.global_step < num_iters:
             start = time.time()
 
@@ -166,7 +166,7 @@ class Launcher(object):
     def init_model_dir(self):
         os.makedirs(self._model_dir, exist_ok=True)
 
-    def evaluate(self, data_loader, config):
+    def evaluate(self, data_loader):
         raise NotImplementedError
 
     def override_evaluate(self, fn):

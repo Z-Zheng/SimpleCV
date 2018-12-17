@@ -41,8 +41,8 @@ class CheckPoint(object):
 
     def save(self):
         ckpt = OrderedDict({
-            CheckPoint.MODEL: self._launcher.model,
-            CheckPoint.OPTIMIZER: self._launcher.optimizer,
+            CheckPoint.MODEL: self._launcher.model.state_dict(),
+            CheckPoint.OPTIMIZER: self._launcher.optimizer.state_dict(),
             CheckPoint.GLOBALSTEP: self.global_step
         })
         filename = self.get_checkpoint_name(self.global_step)
