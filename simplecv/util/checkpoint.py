@@ -91,6 +91,8 @@ class CheckPoint(object):
         model_dir = self._launcher.model_dir
         json_file = self.load_json_log(model_dir)
 
+        if json_file is None:
+            return
         self._json_log = json_file
 
     @staticmethod
