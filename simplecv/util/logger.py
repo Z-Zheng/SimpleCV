@@ -27,6 +27,9 @@ class Logger(object):
         if self.use_tensorboard:
             self.summary_w = tensorboardX.SummaryWriter(log_dir=tensorboard_logdir)
 
+    def info(self, value):
+        self._logger.info(value)
+
     def on(self):
         self._logger.setLevel(self._level)
         self.use_tensorboard = True

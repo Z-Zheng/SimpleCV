@@ -8,6 +8,7 @@ from torch.optim.lr_scheduler import _LRScheduler
 from simplecv.opt.learning_rate import LearningRateBase
 import functools
 import types
+import torch
 
 
 def get_rank():
@@ -83,11 +84,12 @@ class Launcher(object):
             total_loss.backward()
 
             # for log
-            for name, value in losses.items():
-                if name not in loss_dict:
-                    loss_dict[name] = 0.0
-                loss_dict[name] += value.item()
-            loss_dict['total_loss'] += total_loss.item()
+            with torch.no_grad():
+                for name, value in losses.items():
+                    if name not in loss_dict:
+                        loss_dict[name] = 0.0
+                    loss_dict[name] += value.item()
+                loss_dict['total_loss'] += total_loss.item()
 
         return loss_dict
 
@@ -164,7 +166,7 @@ class Launcher(object):
     def init_model_dir(self):
         os.makedirs(self._model_dir, exist_ok=True)
 
-    def evaluate(self, data_loader):
+    def evaluate(self, data_loader, config):
         raise NotImplementedError
 
     def override_evaluate(self, fn):

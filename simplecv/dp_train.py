@@ -18,7 +18,7 @@ parser.add_argument('--model_dir', default=None, type=str,
 parser.add_argument('--cpu', action='store_true', default=False, help='use cutout')
 
 
-def run(config_path, model_dir, cpu_mode=False):
+def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
     # 0. config
     cfg = config.import_config(config_path)
 
@@ -42,6 +42,10 @@ def run(config_path, model_dir, cpu_mode=False):
         model=model,
         optimizer=optimizer,
         lr_schedule=lr_schedule)
+
+    if after_construct_launcher_callbacks is not None:
+        for f in after_construct_launcher_callbacks:
+            f(tl)
 
     tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
 
