@@ -82,13 +82,16 @@ class CheckPoint(object):
         if json_log is None:
             return
         # 2. ckpt path
-        last_path = json_log[CheckPoint.LASTCHECKPOINT]
+        last_path = os.path.join(self._launcher.model_dir, json_log[CheckPoint.LASTCHECKPOINT]['name'])
         # 3. ckpt
         ckpt = self.load(last_path)
         # 4. resume
+
         self._launcher.model.load_state_dict(ckpt[CheckPoint.MODEL])
-        self._launcher.optimizer.load_state_dict(ckpt[CheckPoint.OPTIMIZER])
-        self._launcher.checkpoint.set_global_step(ckpt[CheckPoint.GLOBALSTEP])
+        if self._launcher.optimizer is not None:
+            self._launcher.optimizer.load_state_dict(ckpt[CheckPoint.OPTIMIZER])
+        if self._launcher.checkpoint is not None:
+            self._launcher.checkpoint.set_global_step(ckpt[CheckPoint.GLOBALSTEP])
         # log
         restore_log(logger, last_path)
 

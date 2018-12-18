@@ -114,3 +114,7 @@ def eval_start(logger):
 
 def eval_progress(logger, cur, total):
     logger.info('[Eval] {}/{}'.format(cur, total))
+
+
+def speed(logger, sec, unit='im'):
+    logger.info('[Speed] {} s/{}'.format(sec, unit))
