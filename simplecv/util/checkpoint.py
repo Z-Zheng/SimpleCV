@@ -12,6 +12,7 @@ class CheckPoint(object):
     OPTIMIZER = 'opt'
     GLOBALSTEP = 'global_step'
     LASTCHECKPOINT = 'last'
+    CHECKPOINT_NAME = 'checkpoint_info.json'
 
     def __init__(self, launcher=None):
         self._launcher = launcher
@@ -20,7 +21,7 @@ class CheckPoint(object):
             step=0,
             name=''),
         }
-        self.init_json_log_from_launcher()
+        self.init_checkpoint_info_from_launcher()
 
     def set_global_step(self, value):
         if value >= 0:
@@ -37,7 +38,7 @@ class CheckPoint(object):
 
     def set_launcher(self, launcher):
         self._launcher = launcher
-        self.init_json_log_from_launcher()
+        self.init_checkpoint_info_from_launcher()
 
     def save(self):
         ckpt = OrderedDict({
@@ -52,13 +53,20 @@ class CheckPoint(object):
         if self.global_step > self._json_log[CheckPoint.LASTCHECKPOINT]['step']:
             self._json_log[CheckPoint.LASTCHECKPOINT]['step'] = self.global_step
             self._json_log[CheckPoint.LASTCHECKPOINT]['name'] = filename
+        self.save_checkpoint_info(self._launcher.model_dir)
         # log
         save_log(logger, filename)
 
-    def load(self, filepath):
+    @staticmethod
+    def load(filepath):
         ckpt = torch.load(filepath)
 
         return ckpt
+
+    def save_checkpoint_info(self, model_dir):
+        with open(os.path.join(model_dir, CheckPoint.CHECKPOINT_NAME), 'w') as f:
+            json.dump(self._json_log, f)
+        save_log(logger, CheckPoint.CHECKPOINT_NAME)
 
     def try_resume(self):
         """ json -> ckpt_path -> ckpt -> launcher
@@ -70,7 +78,7 @@ class CheckPoint(object):
             return
         # 1. json
         model_dir = self._launcher.model_dir
-        json_log = self.load_json_log(model_dir)
+        json_log = self.load_checkpoint_info(model_dir)
         if json_log is None:
             return
         # 2. ckpt path
@@ -84,20 +92,20 @@ class CheckPoint(object):
         # log
         restore_log(logger, last_path)
 
-    def init_json_log_from_launcher(self):
+    def init_checkpoint_info_from_launcher(self):
         if self._launcher is None:
             return
 
         model_dir = self._launcher.model_dir
-        json_file = self.load_json_log(model_dir)
+        json_file = self.load_checkpoint_info(model_dir)
 
         if json_file is None:
             return
         self._json_log = json_file
 
     @staticmethod
-    def load_json_log(model_dir):
-        json_path = os.path.join(model_dir, 'checkpoint.json')
+    def load_checkpoint_info(model_dir):
+        json_path = os.path.join(model_dir, CheckPoint.CHECKPOINT_NAME)
         if not os.path.exists(json_path):
             return None
         with open(json_path, 'r') as f:
@@ -107,3 +115,17 @@ class CheckPoint(object):
     @staticmethod
     def get_checkpoint_name(global_step):
         return 'model-{}.pth'.format(global_step)
+
+
+def load_model_state_dict_from_ckpt(filepath):
+    try:
+        ckpt = torch.load(filepath)
+    except RuntimeError:
+        ckpt = torch.load(filepath, map_location=lambda storage, loc: storage)
+    statedict = ckpt[CheckPoint.MODEL]
+    ret = {}
+    for k, v in statedict.items():
+        k = k.replace('module.', '')
+        ret[k] = v
+
+    return ret
