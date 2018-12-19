@@ -9,6 +9,8 @@ class CVModule(nn.Module):
         )
         self.set_defalut_config()
         self._update_config(config)
+        for k, v in self.config.items():
+            self.__dict__[k] = v
 
     def forward(self, *input):
         raise NotImplementedError
