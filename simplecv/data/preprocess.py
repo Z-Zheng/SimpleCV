@@ -3,7 +3,9 @@ import numpy as np
 import torch
 
 from simplecv.data._th_preprocess import _th_resize_to_range
+from simplecv.data._th_preprocess import _th_mean_std_normalize
 from simplecv.data._np_preprocess import _np_resize_to_range
+from simplecv.data._np_preprocess import _np_mean_std_normalize
 
 
 def divisible_pad(image_list, size_divisor=128, to_tensor=True):
@@ -147,9 +149,12 @@ def mean_std_normalize(image, mean=(123.675, 116.28, 103.53), std=(58.395, 57.12
     Returns:
 
     """
-    mean = np.array(mean, np.float32).reshape((1, 1, -1))
-    std = np.array(std, np.float32).reshape((1, 1, -1))
-    return (image - mean) / std
+    if isinstance(image, np.ndarray):
+        return _np_mean_std_normalize(image, mean, std)
+    elif isinstance(image, torch.Tensor):
+        return _th_mean_std_normalize(image, mean, std)
+    else:
+        raise ValueError('The type {} is not support'.format(type(image)))
 
 
 def channel_last_to_first(image):
