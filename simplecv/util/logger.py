@@ -85,7 +85,7 @@ class Logger(object):
             step = 1
         for name, value in metric_dict.items():
             if isinstance(value, float):
-                self.summary_w.add_scalar('eval/{}'.format(name), value)
+                self.summary_w.add_scalar('eval/{}'.format(name), value, global_step=step)
             elif isinstance(value, np.ndarray):
                 for idx, nd_v in enumerate(value):
                     self.summary_w.add_scalar('eval/{}_{}'.format(name, idx), float(nd_v), global_step=step)

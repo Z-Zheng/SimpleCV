@@ -6,6 +6,7 @@ from simplecv.data.iterator import Iterator
 import time
 from torch.optim.lr_scheduler import _LRScheduler
 from simplecv.opt.learning_rate import LearningRateBase
+from simplecv.util import param_util
 import functools
 import types
 import torch
@@ -116,6 +117,7 @@ class Launcher(object):
 
             data_list = iterator.next(forward_times,
                                       call_backs=call_backs)
+            self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
             self.apply_gradient()
             time_cost = time.time() - start
@@ -126,6 +128,7 @@ class Launcher(object):
     def train_epochs(self, train_data_loader, test_data_loader=None, num_epochs=-1, forward_times=2):
         iterator = Iterator(train_data_loader)
         for i in range(num_epochs):
+            self._model.train()
             for data_list in iterator.iter(forward_times=forward_times):
                 start = time.time()
                 loss_dict = self.compute_loss_gradient(data_list)
@@ -141,6 +144,7 @@ class Launcher(object):
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         self.model.train()
+        param_util.count_model_parameters(self.model)
         forward_times = config['forward_times'] if 'forward_times' in config else 1
         self._logger.equation('batch_size', train_data_loader.batch_sampler.batch_size)
         self._logger.forward_times(forward_times)

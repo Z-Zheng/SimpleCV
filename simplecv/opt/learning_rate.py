@@ -26,7 +26,7 @@ class MultiStepLearningRate(LearningRateBase):
                  warmup_step=None,
                  warmup_init_lr=None):
         super(MultiStepLearningRate, self).__init__()
-        self._steps = np.array(steps)
+        self._steps = np.array(list(steps))
         self._base_lr = base_lr
         self._gamma = gamma
         self._warmup_step = warmup_step
@@ -38,8 +38,8 @@ class MultiStepLearningRate(LearningRateBase):
         if self._warmup_step is not None:
             assert self._warmup_init_lr < self._base_lr
             assert self._warmup_step < self._steps[0]
-
-        assert np.all(np.diff(self._steps) > 0)
+        if self._steps.shape[0] > 1:
+            assert np.all(np.diff(self._steps) > 0)
 
     def step(self, global_step, optimizer):
         cur_step = global_step
