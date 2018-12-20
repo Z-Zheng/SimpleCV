@@ -11,10 +11,8 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 2. High performance parallel training using Pytorch 1.0
 3. Dynamic module registration mechanism makes you customize components on the fly
 4. Support tensorboard
-
-## Installation
-
 --------------
+## Installation
 
 ```bash
 pip install git+https://github.com/Z-Zheng/simplecv.git
