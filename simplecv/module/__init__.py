@@ -7,6 +7,7 @@ registry.OP.register('groupnorm', nn.GroupNorm)
 from simplecv.module.aspp import AtrousSpatialPyramidPool
 from simplecv.module.sep_conv import SeparableConv2D
 from simplecv.module.gap import GlobalAvgPool2D
+from simplecv.module.se_block import SEBlock
 
 # encoder
 from simplecv.module.resnet import ResNetEncoder

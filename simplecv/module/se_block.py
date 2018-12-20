@@ -1,8 +1,10 @@
 import torch
 import torch.nn as nn
 from simplecv.module import GlobalAvgPool2D
+from simplecv import registry
 
 
+@registry.OP.register('se_block')
 class SEBlock(nn.Module):
     def __init__(self, in_channels, reduction_ratio):
         super(SEBlock, self).__init__()
