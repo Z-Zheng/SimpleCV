@@ -162,6 +162,7 @@ class Launcher(object):
                              forward_times=forward_times)
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
+        self._ckpt.save()
 
     def init(self):
         self.init_model_dir()
