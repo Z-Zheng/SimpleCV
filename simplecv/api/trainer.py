@@ -124,6 +124,8 @@ class Launcher(object):
 
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
+        self._ckpt.save()
+        self.evaluate(test_data_loader)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, num_epochs=-1, forward_times=2):
         iterator = Iterator(train_data_loader)
