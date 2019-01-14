@@ -61,8 +61,8 @@ def _np_random_crop(image, crop_size):
 
     y_lim = im_h - c_h + 1
     x_lim = im_w - c_w + 1
-    ymin = np.random.randint(0, y_lim, 1)
-    xmin = np.random.randint(0, x_lim, 1)
+    ymin = int(np.random.randint(0, y_lim, 1))
+    xmin = int(np.random.randint(0, x_lim, 1))
 
     xmax = xmin + c_w
     ymax = ymin + c_h
