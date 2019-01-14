@@ -6,6 +6,14 @@ from simplecv.data._th_preprocess import _th_resize_to_range
 from simplecv.data._th_preprocess import _th_mean_std_normalize
 from simplecv.data._np_preprocess import _np_resize_to_range
 from simplecv.data._np_preprocess import _np_mean_std_normalize
+from simplecv.data._np_preprocess import _np_random_crop
+
+
+def random_crop(image, crop_size):
+    if isinstance(image, np.ndarray):
+        return _np_random_crop(image, crop_size)
+    else:
+        raise ValueError('The type {} is not support'.format(type(image)))
 
 
 def divisible_pad(image_list, size_divisor=128, to_tensor=True):
