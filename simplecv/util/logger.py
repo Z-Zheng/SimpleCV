@@ -51,10 +51,10 @@ class Logger(object):
                  metric_dict.items()])
         else:
             metric_info = ''
-        lr_info = 'lr = {}'.format(str(round(lr, 6)))
-        msg = '{loss}\t{metric}\t{lr}\t{step}\t{time}'.format(loss=loss_info, metric=metric_info, step=step_info,
-                                                              lr=lr_info,
-                                                              time=time_cost_info)
+        lr_info = 'lr = {}\t'.format(str(round(lr, 6)))
+        msg = '{loss}{metric}{lr}{step}{time}'.format(loss=loss_info, metric=metric_info, step=step_info,
+                                                      lr=lr_info,
+                                                      time=time_cost_info)
         self._logger.info(msg)
 
         if self.use_tensorboard and step % 100 == 0:
