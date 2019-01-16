@@ -75,11 +75,10 @@ class Launcher(object):
         loss_dict = {'total_loss': 0.0}
 
         for d in data:
-            a_tuple = self._model(*d)
-            if len(a_tuple) == 2:
-                losses = a_tuple[0]
-            else:
-                losses = a_tuple
+            msg_dict = self._model(*d)
+
+            losses = {k: v for k, v in msg_dict.items() if k.endswith('loss')}
+
             # scale losses by 1. / forward times
             losses = scale_dict(losses, 1. / len(data))
 
@@ -96,8 +95,9 @@ class Launcher(object):
                     loss_dict[name] += value.item()
                 loss_dict['total_loss'] += total_loss.item()
             # extra log message
-            if len(a_tuple) == 2:
-                log_dict = a_tuple[1]
+            log_dict = {k: v for k, v in msg_dict.items() if not k.endswith('loss')}
+            if len(log_dict) != 0:
+                log_dict = scale_dict(log_dict, 1. / len(data))
                 avg_log_dict = average_dict(log_dict)
                 for name, value in avg_log_dict.items():
                     if name not in loss_dict:
@@ -201,26 +201,3 @@ def average_dict(input_dict):
     for k, v in input_dict.items():
         input_dict[k] = v.mean()
     return input_dict
-
-
-class TrainMessage(object):
-    def __init__(self, loss_dict, log_dict):
-        self._loss_dict = loss_dict
-        self._log_dict = log_dict
-
-    @staticmethod
-    def loss_key():
-        return '_loss'
-
-    @staticmethod
-    def log_key():
-        return '_log'
-
-    def loss_dict(self):
-        return self._loss_dict
-
-    def log_dict(self):
-        return self._log_dict
-
-    def to_tuple(self):
-        return self.loss_dict(), self.log_dict()
