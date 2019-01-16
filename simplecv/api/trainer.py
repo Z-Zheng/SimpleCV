@@ -75,7 +75,13 @@ class Launcher(object):
         loss_dict = {'total_loss': 0.0}
 
         for d in data:
-            losses = self._model(*d)
+            msg = self._model(*d)
+            if isinstance(msg, dict):
+                losses = msg
+            elif isinstance(msg, TrainMessage):
+                losses = msg.loss_dict()
+            else:
+                raise NotImplementedError('type {} is not support.'.format(type(msg)))
             # scale losses by 1. / forward times
             losses = scale_dict(losses, 1. / len(data))
 
@@ -84,13 +90,20 @@ class Launcher(object):
 
             total_loss.backward()
 
-            # for log
+            # log losses
             with torch.no_grad():
                 for name, value in losses.items():
                     if name not in loss_dict:
                         loss_dict[name] = 0.0
                     loss_dict[name] += value.item()
                 loss_dict['total_loss'] += total_loss.item()
+            # extra log message
+            if isinstance(msg, TrainMessage):
+                log_dict = msg.log_dict()
+                for name, value in log_dict.items():
+                    if name not in loss_dict:
+                        loss_dict[name] = 0.0
+                    loss_dict[name] += value.item() if isinstance(value, torch.Tensor) else value
 
         return loss_dict
 
@@ -189,3 +202,15 @@ def average_dict(input_dict):
     for k, v in input_dict.items():
         input_dict[k] = v.mean()
     return input_dict
+
+
+class TrainMessage(object):
+    def __init__(self, loss_dict, log_dict=None):
+        self._loss_dict = loss_dict
+        self._log_dict = log_dict
+
+    def loss_dict(self):
+        return self._loss_dict
+
+    def log_dict(self):
+        return self._log_dict
