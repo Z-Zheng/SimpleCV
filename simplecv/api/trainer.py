@@ -76,12 +76,10 @@ class Launcher(object):
 
         for d in data:
             msg = self._model(*d)
-            if isinstance(msg, dict):
-                losses = msg
-            elif isinstance(msg, TrainMessage):
-                losses = msg.loss_dict()
+            if TrainMessage.loss_key() in msg:
+                losses = msg[TrainMessage.loss_key()]
             else:
-                raise NotImplementedError('type {} is not support.'.format(type(msg)))
+                losses = msg
             # scale losses by 1. / forward times
             losses = scale_dict(losses, 1. / len(data))
 
@@ -98,9 +96,10 @@ class Launcher(object):
                     loss_dict[name] += value.item()
                 loss_dict['total_loss'] += total_loss.item()
             # extra log message
-            if isinstance(msg, TrainMessage):
-                log_dict = msg.log_dict()
-                for name, value in log_dict.items():
+            if TrainMessage.log_key() in msg:
+                log_dict = msg[TrainMessage.log_key()]
+                avg_log_dict = average_dict(log_dict)
+                for name, value in avg_log_dict.items():
                     if name not in loss_dict:
                         loss_dict[name] = 0.0
                     loss_dict[name] += value.item() if isinstance(value, torch.Tensor) else value
@@ -205,12 +204,27 @@ def average_dict(input_dict):
 
 
 class TrainMessage(object):
-    def __init__(self, loss_dict, log_dict=None):
+    def __init__(self, loss_dict, log_dict):
         self._loss_dict = loss_dict
         self._log_dict = log_dict
+
+    @staticmethod
+    def loss_key():
+        return '_loss'
+
+    @staticmethod
+    def log_key():
+        return '_log'
 
     def loss_dict(self):
         return self._loss_dict
 
     def log_dict(self):
         return self._log_dict
+
+    def to_dict(self):
+        ret = {
+            self.loss_key(): self.loss_dict(),
+            self.log_key(): self.log_dict()
+        }
+        return ret
