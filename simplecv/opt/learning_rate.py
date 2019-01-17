@@ -60,3 +60,21 @@ class MultiStepLearningRate(LearningRateBase):
     def _compute_warmup_lr(self, cur_step):
         lr = cur_step * (self._base_lr - self._warmup_init_lr) / self._warmup_step + self._warmup_init_lr
         return lr
+
+
+@registry.LR.register('poly')
+class PolyLearningRate(LearningRateBase):
+    def __init__(self,
+                 base_lr,
+                 power,
+                 max_iters,
+                 ):
+        super(PolyLearningRate, self).__init__()
+        self.base_lr = base_lr
+        self.power = power
+        self.max_iters = max_iters
+
+    def step(self, global_step, optimizer):
+        factor = (1 - global_step / self.max_iters) ** self.power
+        cur_lr = self.base_lr * factor
+        set_lr(optimizer, cur_lr)
