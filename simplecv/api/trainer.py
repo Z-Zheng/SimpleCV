@@ -80,7 +80,8 @@ class Launcher(object):
             losses = {k: v for k, v in msg_dict.items() if k.endswith('loss')}
 
             # scale losses by 1. / forward times
-            losses = scale_dict(losses, 1. / len(data))
+            if len(data) != 1:
+                losses = scale_dict(losses, 1. / len(data))
 
             losses = average_dict(losses)
             total_loss = sum([e for e in losses.values()])
@@ -96,13 +97,14 @@ class Launcher(object):
                 loss_dict['total_loss'] += total_loss.item()
             # extra log message
             log_dict = {k: v for k, v in msg_dict.items() if not k.endswith('loss')}
-            if len(log_dict) != 0:
-                log_dict = scale_dict(log_dict, 1. / len(data))
-                avg_log_dict = average_dict(log_dict)
-                for name, value in avg_log_dict.items():
-                    if name not in loss_dict:
-                        loss_dict[name] = 0.0
-                    loss_dict[name] += value.item() if isinstance(value, torch.Tensor) else value
+            with torch.no_grad():
+                if len(log_dict) != 0:
+                    log_dict = scale_dict(log_dict, 1. / len(data))
+                    avg_log_dict = average_dict(log_dict)
+                    for name, value in avg_log_dict.items():
+                        if name not in loss_dict:
+                            loss_dict[name] = 0.0
+                        loss_dict[name] += value.item() if isinstance(value, torch.Tensor) else value
 
         return loss_dict
 
