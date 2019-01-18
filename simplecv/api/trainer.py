@@ -99,7 +99,8 @@ class Launcher(object):
             log_dict = {k: v for k, v in msg_dict.items() if not k.endswith('loss')}
             with torch.no_grad():
                 if len(log_dict) != 0:
-                    log_dict = scale_dict(log_dict, 1. / len(data))
+                    if len(data) != 1:
+                        log_dict = scale_dict(log_dict, 1. / len(data))
                     avg_log_dict = average_dict(log_dict)
                     for name, value in avg_log_dict.items():
                         if name not in loss_dict:
@@ -138,6 +139,9 @@ class Launcher(object):
 
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
+            self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
+            self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+
         self.evaluate(test_data_loader)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, num_epochs=-1, forward_times=2):

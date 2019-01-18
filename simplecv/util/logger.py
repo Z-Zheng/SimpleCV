@@ -38,6 +38,20 @@ class Logger(object):
         self._logger.setLevel(100)
         self.use_tensorboard = False
 
+    def summary_weights(self, module, step):
+        if step % 100 == 0:
+            for name, p in module.named_parameters():
+                if not p.requres_grad:
+                    continue
+                self.summary_w.add_histogram('weights/{}'.format(name), p.cpu().data.numpy(), step)
+
+    def summary_grads(self, module, step):
+        if step % 100 == 0:
+            for name, p in module.named_parameters():
+                if not p.requres_grad:
+                    continue
+                self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
+
     def train_log(self, step, loss_dict, time_cost, lr, metric_dict=None):
         loss_info = ''.join(
             ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
