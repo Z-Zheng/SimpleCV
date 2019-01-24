@@ -32,4 +32,24 @@ def _th_mean_std_normalize(image, mean=(123.675, 116.28, 103.53), std=(58.395, 5
     mean = torch.tensor(mean, requires_grad=False).reshape(*shape)
     std = torch.tensor(std, requires_grad=False).reshape(*shape)
 
+    return image.sub(mean).div(std)
+
+
+def _th_mean_std_normalize_(image, mean=(123.675, 116.28, 103.53), std=(58.395, 57.12, 57.375)):
+    """ this version faster than torchvision.transforms.functional.normalize
+
+
+    Args:
+        image: 3-D or 4-D array of shape [batch (optional) , height, width, channel]
+        mean:  a list or tuple or ndarray
+        std: a list or tuple or ndarray
+
+    Returns:
+
+    """
+    shape = [1] * image.dim()
+    shape[-1] = -1
+    mean = torch.tensor(mean, requires_grad=False).reshape(*shape)
+    std = torch.tensor(std, requires_grad=False).reshape(*shape)
+
     return image.sub_(mean).div_(std)

@@ -37,6 +37,9 @@ class ResNetEncoder(CVModule):
 
     def _frozen_res_bn(self):
         param_util.freeze_modules(self.resnet, nn.BatchNorm2d)
+        for m in self.resnet.modules():
+            if isinstance(m, nn.BatchNorm2d):
+                m.eval()
 
     def _freeze_at(self, at=2):
         if at >= 1:

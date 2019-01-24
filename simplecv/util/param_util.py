@@ -38,9 +38,3 @@ def freeze_modules(module, specific_class=None):
                 continue
         freeze_params(m)
 
-
-if __name__ == '__main__':
-    from torchvision.models.resnet import resnet18
-
-    model = resnet18(False)
-    trainable_parameters(model)

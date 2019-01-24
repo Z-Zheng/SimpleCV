@@ -101,8 +101,8 @@ def flip_left_right(image, mask=None, boxes=None):
 
     if boxes is not None:
         w = image.shape[1]
-        new_xmin = w - boxes[:, 2]
-        new_xmax = w - boxes[:, 0]
+        new_xmin = w - boxes[:, 2] - 1
+        new_xmax = w - boxes[:, 0] - 1
         new_boxes = boxes.copy()
         new_boxes[:, 0] = new_xmin
         new_boxes[:, 2] = new_xmax
@@ -198,8 +198,8 @@ def flip_up_down(image, mask=None, boxes=None):
 
     if boxes is not None:
         h = image.shape[0]
-        new_ymin = h - boxes[:, 3]
-        new_ymax = h - boxes[:, 1]
+        new_ymin = h - boxes[:, 3] - 1
+        new_ymax = h - boxes[:, 1] - 1
         new_boxes = boxes.copy()
         new_boxes[:, 1] = new_ymin
         new_boxes[:, 3] = new_ymax
