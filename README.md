@@ -5,6 +5,7 @@
 ---------------------
 This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ## Change logs
+- 2019/01/25 summary grads and weights
 - 2018/12/20 support SE Block
 ## Features
 1. Focus on your research rather than training template codes
@@ -45,9 +46,11 @@ class Deeplabv3plus(CVModule):
         if self.training:
             # compute your loss functions and store them into a dict
             # The framework will automatically sum these losses when compute the gradients
+            # **Note that the key of loss tensor have to suffix with "loss"**
             loss_dict={
-                'loss1': loss1,
-                'loss2': loss2,
+                '1_loss': loss1,
+                '2_loss': loss2,
+                'other_information': other
             }
             return loss_dict
         else:
