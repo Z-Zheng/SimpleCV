@@ -134,13 +134,15 @@ class Launcher(object):
                                       call_backs=call_backs)
             self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
+
+            self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
             time_cost = time.time() - start
 
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
             self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
-            self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+
 
         self.evaluate(test_data_loader)
 
