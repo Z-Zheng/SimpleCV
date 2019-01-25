@@ -32,9 +32,8 @@ class Logger(object):
     def create_or_get_smoothvalues(self, loss_dict):
         for key, value in loss_dict.items():
             if key not in self.smoothvalues:
-                if key not in self.smoothvalues:
-                    self.smoothvalues[key] = SmoothedValue(100)
-                self.smoothvalues[key].add_value(value)
+                self.smoothvalues[key] = SmoothedValue(100)
+            self.smoothvalues[key].add_value(value)
 
         return {key: smoothvalue.get_average_value() for key, smoothvalue in self.smoothvalues.items()}
 
@@ -52,14 +51,14 @@ class Logger(object):
     def summary_weights(self, module, step):
         if step % 100 == 0:
             for name, p in module.named_parameters():
-                if not p.requres_grad:
+                if not p.requires_grad:
                     continue
                 self.summary_w.add_histogram('weights/{}'.format(name), p.cpu().data.numpy(), step)
 
     def summary_grads(self, module, step):
         if step % 100 == 0:
             for name, p in module.named_parameters():
-                if not p.requres_grad:
+                if not p.requires_grad:
                     continue
                 self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
 

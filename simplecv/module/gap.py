@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 
-
 class GlobalAvgPool2D(nn.Module):
     def __init__(self):
         super(GlobalAvgPool2D, self).__init__()
