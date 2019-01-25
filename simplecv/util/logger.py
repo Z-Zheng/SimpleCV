@@ -2,6 +2,7 @@ import logging
 import time
 import tensorboardX
 import numpy as np
+from collections import deque
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,6 +27,16 @@ class Logger(object):
             raise ValueError('logdir is not None if you use tensorboard')
         if self.use_tensorboard:
             self.summary_w = tensorboardX.SummaryWriter(log_dir=tensorboard_logdir)
+        self.smoothvalues = dict()
+
+    def create_or_get_smoothvalues(self, loss_dict):
+        for key, value in loss_dict.items():
+            if key not in self.smoothvalues:
+                if key not in self.smoothvalues:
+                    self.smoothvalues[key] = SmoothedValue(100)
+                self.smoothvalues[key].add_value(value)
+
+        return {key: smoothvalue.get_average_value() for key, smoothvalue in self.smoothvalues.items()}
 
     def info(self, value):
         self._logger.info(value)
@@ -53,9 +64,10 @@ class Logger(object):
                 self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
 
     def train_log(self, step, loss_dict, time_cost, lr, metric_dict=None):
+        smooth_loss_dict = self.create_or_get_smoothvalues(loss_dict)
         loss_info = ''.join(
             ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
-             loss_dict.items()])
+             smooth_loss_dict.items()])
         step_info = 'step: {}\t'.format(int(step))
         time_cost_info = '({} sec / step)'.format(round(time_cost, 3))
 
@@ -72,7 +84,7 @@ class Logger(object):
         self._logger.info(msg)
 
         if self.use_tensorboard and step % 100 == 0:
-            self.train_summary(step, loss_dict, time_cost, lr, metric_dict)
+            self.train_summary(step, smooth_loss_dict, time_cost, lr, metric_dict)
 
     def train_summary(self, step, loss_dict, time_cost, lr, metric_dict=None):
         for name, value in loss_dict.items():
@@ -132,3 +144,32 @@ def eval_progress(logger, cur, total):
 
 def speed(logger, sec, unit='im'):
     logger.info('[Speed] {} s/{}'.format(sec, unit))
+
+
+# ref to:
+# https://github.com/facebookresearch/Detectron/blob/7c0ad88fc0d33cf0f698a3554ee842262d27babf/detectron/utils/logging.py#L41
+class SmoothedValue(object):
+    """Track a series of values and provide access to smoothed values over a
+    window or the global series average.
+    """
+
+    def __init__(self, window_size):
+        self.deque = deque(maxlen=window_size)
+        self.series = []
+        self.total = 0.0
+        self.count = 0
+
+    def add_value(self, value):
+        self.deque.append(value)
+        self.series.append(value)
+        self.count += 1
+        self.total += value
+
+    def get_median_value(self):
+        return np.median(self.deque)
+
+    def get_average_value(self):
+        return np.mean(self.deque)
+
+    def get_global_average_value(self):
+        return self.total / self.count
