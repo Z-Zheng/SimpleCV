@@ -9,6 +9,7 @@ def make_optimizer(config, params):
     opt_type = config['type']
     if opt_type in registry.OPT:
         opt = registry.OPT[opt_type](params=params, **config['params'])
+        opt.simplecv_config = config
     else:
         raise ValueError('{} is not support now.'.format(opt_type))
     return opt

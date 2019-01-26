@@ -10,6 +10,7 @@ from simplecv.util import param_util
 import functools
 import types
 import torch
+from torch.nn.utils import clip_grad
 
 
 def get_rank():
@@ -134,7 +135,10 @@ class Launcher(object):
                                       call_backs=call_backs)
             self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
-
+            # clip gradient
+            grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
+            clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
+                                      **grad_clip_config)
             self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
             time_cost = time.time() - start
@@ -142,7 +146,6 @@ class Launcher(object):
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
             self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
-
 
         self.evaluate(test_data_loader)
 
@@ -153,11 +156,18 @@ class Launcher(object):
             for data_list in iterator.iter(forward_times=forward_times):
                 start = time.time()
                 loss_dict = self.compute_loss_gradient(data_list)
+                # clip gradient
+                grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
+                clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
+                                          **grad_clip_config)
+                self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
                 self.apply_gradient()
                 time_cost = time.time() - start
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                        time_cost=time_cost, lr=self.lr)
+
+                self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
             if self._master:
                 self._ckpt.save()
