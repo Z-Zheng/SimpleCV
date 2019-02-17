@@ -26,7 +26,7 @@ class ResNetEncoder(CVModule):
 
         self.include_conv5 = self.config['include_conv5']
         self.resnet = registry.MODEL[self.config['resnet_type']](pretrained=self.config['pretrained'])
-        param_util.freeze_params(self.resnet.fc)
+        self.resnet._modules.pop('fc')
         if not self.config['batchnoram_trainable']:
             self._frozen_res_bn()
 
