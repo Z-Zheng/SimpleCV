@@ -125,9 +125,11 @@ class Launcher(object):
         else:
             raise NotImplementedError()
 
-    def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2):
+    def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2, eval_per_epoch=True):
         iterator = Iterator(train_data_loader)
-        call_backs = [self._ckpt.save, functools.partial(self.evaluate, test_data_loader)]
+        call_backs = [self._ckpt.save]
+        if eval_per_epoch:
+            call_backs.append(functools.partial(self.evaluate, test_data_loader))
         while self._ckpt.global_step < num_iters:
             start = time.time()
 
@@ -190,7 +192,8 @@ class Launcher(object):
                                          round(config['num_iters'] * forward_times / len(train_data_loader), 1))
             self._logger.equation('num_iters', config['num_iters'])
             self.train_iters(train_data_loader, test_data_loader=test_data_loader, num_iters=config['num_iters'],
-                             forward_times=forward_times)
+                             forward_times=forward_times, eval_per_epoch=config.get('eval_per_epoch', True))
+
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
         self._ckpt.save()

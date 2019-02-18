@@ -116,7 +116,7 @@ class Logger(object):
                     self.summary_w.add_scalar('eval/{}_{}'.format(name, idx), float(nd_v), global_step=step)
 
     def forward_times(self, forward_times):
-        self._logger.info('use {} forward and 1 backward mode.'.format(forward_times))
+        self._logger.info('use {} forward and {} backward mode.'.format(forward_times, forward_times))
 
     def equation(self, name, value):
         self._logger.info('{name} = {value}'.format(name=name, value=value))
