@@ -125,7 +125,12 @@ class Launcher(object):
         else:
             raise NotImplementedError()
 
-    def train_iters(self, train_data_loader, test_data_loader=None, num_iters=-1, forward_times=2, eval_per_epoch=True):
+    def train_iters(self, train_data_loader, test_data_loader=None,
+                    **kwargs):
+        num_iters = kwargs.get('num_iters', -1)
+        forward_times = kwargs.get('forward_times', 1)
+        eval_per_epoch = kwargs.get('eval_per_epoch', True)
+
         iterator = Iterator(train_data_loader)
         call_backs = [self._ckpt.save]
         if eval_per_epoch:
@@ -141,17 +146,21 @@ class Launcher(object):
             grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
             clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                       **grad_clip_config)
-            self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+            if kwargs.get('summary_grads', True):
+                self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
             time_cost = time.time() - start
 
             self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                    time_cost=time_cost, lr=self.lr)
-            self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
+            if kwargs.get('summary_weights', True):
+                self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
         self.evaluate(test_data_loader)
 
-    def train_epochs(self, train_data_loader, test_data_loader=None, num_epochs=-1, forward_times=2):
+    def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
+        num_epochs = kwargs.get('num_epochs', -1)
+        forward_times = kwargs.get('forward_times', 1)
         iterator = Iterator(train_data_loader)
         for i in range(num_epochs):
             self._model.train()
@@ -162,14 +171,15 @@ class Launcher(object):
                 grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
                 clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                           **grad_clip_config)
-                self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+                if kwargs.get('summary_grads', True):
+                    self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
                 self.apply_gradient()
                 time_cost = time.time() - start
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                        time_cost=time_cost, lr=self.lr)
-
-                self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
+                if kwargs.get('summary_weights', True):
+                    self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
             if self._master:
                 self._ckpt.save()
@@ -184,15 +194,13 @@ class Launcher(object):
         if 'num_epochs' in config and 'num_iters' not in config:
             self._logger.equation('num_epochs', config['num_epochs'])
             self._logger.equation('num_iters', config['num_epochs'] * len(train_data_loader))
-            self.train_epochs(train_data_loader, test_data_loader=test_data_loader, num_epochs=config['num_epochs'],
-                              forward_times=forward_times)
+            self.train_epochs(train_data_loader, test_data_loader=test_data_loader, **config)
 
         elif 'num_epochs' not in config and 'num_iters' in config:
             self._logger.approx_equation('num_epochs',
                                          round(config['num_iters'] * forward_times / len(train_data_loader), 1))
             self._logger.equation('num_iters', config['num_iters'])
-            self.train_iters(train_data_loader, test_data_loader=test_data_loader, num_iters=config['num_iters'],
-                             forward_times=forward_times, eval_per_epoch=config.get('eval_per_epoch', True))
+            self.train_iters(train_data_loader, test_data_loader=test_data_loader, **config)
 
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
