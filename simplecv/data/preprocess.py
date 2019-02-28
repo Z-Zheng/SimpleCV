@@ -7,6 +7,8 @@ from simplecv.data._th_preprocess import _th_mean_std_normalize
 from simplecv.data._np_preprocess import _np_resize_to_range
 from simplecv.data._np_preprocess import _np_mean_std_normalize
 from simplecv.data._np_preprocess import _np_random_crop
+from simplecv.data._np_preprocess import _np_im_random_scale
+from simplecv.data._np_preprocess import _np_im_scale
 
 
 def random_crop(image, crop_size):
@@ -109,6 +111,22 @@ def flip_left_right(image, mask=None, boxes=None):
         ret.append(new_boxes)
 
     return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def scale_image(image, scale_factor, size_divisor=None):
+    # todo: support torch.Tensor
+    if isinstance(image, np.ndarray):
+        return _np_im_scale(image, scale_factor, size_divisor)
+    else:
+        raise ValueError('The type {} is not support'.format(type(image)))
+
+
+def random_scale_image(image, scale_factors, size_divisor=None, mask=None):
+    # todo: support torch.Tensor
+    if isinstance(image, np.ndarray):
+        return _np_im_random_scale(image, scale_factors, size_divisor, mask)
+    else:
+        raise ValueError('The type {} is not support'.format(type(image)))
 
 
 def scale_image_and_label(image, scale_factor, max_stride=32, mask=None, fixed_size=None):

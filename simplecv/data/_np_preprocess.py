@@ -70,3 +70,81 @@ def _np_random_crop(image, crop_size):
     crop_im = image[ymin:ymax, xmin:xmax, :]
 
     return crop_im
+
+
+def _np_im_scale(image, scale_factor, size_divisor=None):
+    """
+
+    Args:
+        image: 3-D of shape [height, width, channel]
+        scale_factor:
+        size_divisor:
+
+    Returns:
+
+    """
+    im_h, im_w = image.shape[0:2]
+    if size_divisor is None:
+        resized_im = cv2.resize(
+            image,
+            None,
+            None,
+            fx=scale_factor,
+            fy=scale_factor,
+            interpolation=cv2.INTER_LINEAR
+        )
+    else:
+        dst_h = int(np.ceil(scale_factor * im_h / size_divisor) * size_divisor)
+        dst_w = int(np.ceil(scale_factor * im_h / size_divisor) * size_divisor)
+        resized_im = cv2.resize(
+            image,
+            (dst_h, dst_w),
+            None,
+            interpolation=cv2.INTER_LINEAR
+        )
+    return resized_im
+
+
+def _np_im_random_scale(image, scale_factors, size_divisor=None, mask=None):
+    """
+
+    Args:
+        image: 3-D of shape [height, width, channel]
+        scale_factors:
+        size_divisor:
+        mask:
+
+    Returns:
+
+    """
+    if not isinstance(scale_factors, list) and not isinstance(scale_factors, tuple):
+        raise ValueError('param: scale_factors should be list or tuple.')
+
+    im_h, im_w = image.shape[0:2]
+
+    if size_divisor is None:
+        dst_sizes = [(round(im_h * scale), round(im_w * scale)) for scale in scale_factors]
+    else:
+        dst_sizes = [(int(np.ceil(im_h * scale / size_divisor) * size_divisor),
+                      int(np.ceil(im_w * scale / size_divisor) * size_divisor)) for scale in
+                     scale_factors]
+
+    inds = np.arange(len(dst_sizes))
+    index = np.random.choice(inds)
+    dst_size = dst_sizes[index]
+
+    resized_im = cv2.resize(
+        image,
+        dst_size,
+        None,
+        interpolation=cv2.INTER_LINEAR
+    )
+    if mask is not None:
+        resized_mask = cv2.resize(
+            mask,
+            dst_size,
+            None,
+            interpolation=cv2.INTER_LINEAR
+        )
+        return resized_im, resized_mask
+    return resized_im
