@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch.utils import checkpoint as cp
 from functools import partial
 from torchvision.models.resnet import resnet18
 from torchvision.models.resnet import resnet34
@@ -57,6 +58,14 @@ class ResNetEncoder(CVModule):
         if at >= 5:
             param_util.freeze_params(self.resnet.layer4)
 
+    @staticmethod
+    def get_function(module):
+        def _function(x):
+            y = module(x)
+            return y
+
+        return _function
+
     def forward(self, inputs):
         x = inputs
         x = self.resnet.conv1(x)
@@ -65,14 +74,26 @@ class ResNetEncoder(CVModule):
         x = self.resnet.maxpool(x)
 
         # os 4, #layers/outdim: 18,34/64; 50,101,152/256
-        c2 = self.resnet.layer1(x)
+        if self.with_cp[0] and x.requires_grad:
+            c2 = cp.checkpoint(self.get_function(self.resnet.layer1), x)
+        else:
+            c2 = self.resnet.layer1(x)
         # os 8, #layers/outdim: 18,34/128; 50,101,152/512
-        c3 = self.resnet.layer2(c2)
+        if self.with_cp[1] and c2.requires_grad:
+            c3 = cp.checkpoint(self.get_function(self.resnet.layer2), c2)
+        else:
+            c3 = self.resnet.layer2(c2)
         # os 16, #layers/outdim: 18,34/256; 50,101,152/1024
-        c4 = self.resnet.layer3(c3)
+        if self.with_cp[2] and c3.requires_grad:
+            c4 = cp.checkpoint(self.get_function(self.resnet.layer3), c3)
+        else:
+            c4 = self.resnet.layer3(c3)
         # os 32, #layers/outdim: 18,34/512; 50,101,152/2048
         if self.include_conv5:
-            c5 = self.resnet.layer4(c4)
+            if self.with_cp[3] and c4.requires_grad:
+                c5 = cp.checkpoint(self.get_function(self.resnet.layer4), c4)
+            else:
+                c5 = self.resnet.layer4(c4)
             return [c2, c3, c4, c5]
 
         return [c2, c3, c4]
@@ -81,11 +102,12 @@ class ResNetEncoder(CVModule):
         self.config.update(dict(
             resnet_type='resnet50',
             include_conv5=True,
-            batchnorm_trainable=False,
+            batchnorm_trainable=True,
             pretrained=True,
-            freeze_at=2,
+            freeze_at=0,
             # 16 or 32
             output_stride=32,
+            with_cp=(False, False, False, False),
         ))
 
     def _nostride_dilate(self, m, dilate):

@@ -1,8 +1,11 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+import logging
+logging.basicConfig(level=logging.INFO)
+
 def _register_generic(module_dict, module_name, module, override=False):
     if not override:
         if module_name in module_dict:
-            raise ValueError('{} has been in module_dict.'.format(module_name))
+            logging.warning('{} has been in module_dict.'.format(module_name))
     module_dict[module_name] = module
 
 
