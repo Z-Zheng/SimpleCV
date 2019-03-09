@@ -25,9 +25,8 @@ class MultiStepLearningRate(LearningRateBase):
                  gamma=0.1,
                  warmup_step=None,
                  warmup_init_lr=None):
-        super(MultiStepLearningRate, self).__init__()
+        super(MultiStepLearningRate, self).__init__(base_lr=base_lr)
         self._steps = np.array(list(steps))
-        self._base_lr = base_lr
         self._gamma = gamma
         self._warmup_step = warmup_step
         self._warmup_init_lr = warmup_init_lr
@@ -69,8 +68,7 @@ class PolyLearningRate(LearningRateBase):
                  power,
                  max_iters,
                  ):
-        super(PolyLearningRate, self).__init__()
-        self.base_lr = base_lr
+        super(PolyLearningRate, self).__init__(base_lr)
         self.power = power
         self.max_iters = max_iters
 

@@ -35,8 +35,10 @@ def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbac
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
 
     # 3. optimizer
-    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])
+    cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
+    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
+
     tl = trainer.Launcher(
         model_dir=model_dir,
         model=model,
