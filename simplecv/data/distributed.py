@@ -14,7 +14,7 @@ class StepDistributedSampler(DistributedSampler):
 
 class StepDistributedRandomSubsetSampler(StepDistributedSampler):
     def __init__(self, indices, num_replicas=None, rank=None):
-        super(StepDistributedRandomSubsetSampler, self).__init__(None, num_replicas, rank)
+        super(StepDistributedRandomSubsetSampler, self).__init__([], num_replicas, rank)
 
         self.indices = indices
         self.num_samples = int(math.ceil(len(self.indices) * 1.0 / self.num_replicas))
