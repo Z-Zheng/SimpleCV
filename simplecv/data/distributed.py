@@ -5,7 +5,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 class StepDistributedSampler(DistributedSampler):
     def __init__(self, dataset, num_replicas=None, rank=None):
-        super(StepDistributedSampler).__init__(dataset, num_replicas, rank)
+        super(StepDistributedSampler, self).__init__(dataset, num_replicas, rank)
         self.step = 0
 
     def set_step(self, step):
