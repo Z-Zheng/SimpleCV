@@ -18,6 +18,7 @@ class StepDistributedRandomSubsetSampler(StepDistributedSampler):
 
         self.indices = indices
         self.num_samples = int(math.ceil(len(self.indices) * 1.0 / self.num_replicas))
+        self.total_size = self.num_samples * self.num_replicas
 
     def __iter__(self):
         # deterministically shuffle based on step
