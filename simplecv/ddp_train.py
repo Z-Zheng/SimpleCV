@@ -16,16 +16,16 @@ parser.add_argument('--config_path', default=None, type=str,
                     help='path to config file')
 parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
-parser.add_argument('--cpu', action='store_true', default=False, help='use cutout')
+parser.add_argument('--cpu', action='store_true', default=False, help='use cpu')
 
 
-def run(local_rank, config_path, model_dir, cpu_mode=False):
+def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
     # 0. config
     cfg = config.import_config(config_path)
 
     # 1. model
     model = make_model(cfg['model'])
-    print(model)
+
     if not cpu_mode:
         if torch.cuda.is_available():
             torch.cuda.set_device(local_rank)
@@ -50,6 +50,10 @@ def run(local_rank, config_path, model_dir, cpu_mode=False):
         model=model,
         optimizer=optimizer,
         lr_schedule=lr_schedule)
+
+    if after_construct_launcher_callbacks is not None:
+        for f in after_construct_launcher_callbacks:
+            f(tl)
 
     tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
 

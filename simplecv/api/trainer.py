@@ -137,27 +137,28 @@ class Launcher(object):
             call_backs.append(functools.partial(self.evaluate, test_data_loader))
         while self._ckpt.global_step < num_iters:
             start = time.time()
-
+            if kwargs.get('distributed', False):
+                iterator.set_seed_for_dist_sampler(self._ckpt.global_step)
             data_list = iterator.next(forward_times,
-                                      call_backs=call_backs)
+                                      call_backs=call_backs,
+                                      is_master=self._master)
             self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
             # clip gradient
             grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
             clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                       **grad_clip_config)
-            if kwargs.get('summary_grads', True):
-                self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+            if self._master:
+                if kwargs.get('summary_grads', True):
+                    self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
-            time_cost = time.time() - start
+            if self._master:
+                time_cost = time.time() - start
 
-            self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                   time_cost=time_cost, lr=self.lr)
-            if kwargs.get('summary_weights', True):
-                self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
-
-        if kwargs.get('eval_after_train', True):
-            self.evaluate(test_data_loader)
+                self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
+                                       time_cost=time_cost, lr=self.lr)
+                if kwargs.get('summary_weights', True):
+                    self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
         num_epochs = kwargs.get('num_epochs', -1)
@@ -172,44 +173,52 @@ class Launcher(object):
                 grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
                 clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                           **grad_clip_config)
-                if kwargs.get('summary_grads', True):
-                    self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
+                if self._master:
+                    if kwargs.get('summary_grads', True):
+                        self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
                 self.apply_gradient()
-                time_cost = time.time() - start
+                if self._master:
+                    time_cost = time.time() - start
 
-                self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                       time_cost=time_cost, lr=self.lr)
-                if kwargs.get('summary_weights', True):
-                    self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
+                    self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
+                                           time_cost=time_cost, lr=self.lr)
+                    if kwargs.get('summary_weights', True):
+                        self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
             if self._master:
                 self._ckpt.save()
-                if kwargs.get('eval_after_train', True):
-                    self.evaluate(test_data_loader)
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         self.model.train()
-        param_util.count_model_parameters(self.model)
         forward_times = config['forward_times'] if 'forward_times' in config else 1
-        self._logger.equation('batch_size', train_data_loader.batch_sampler.batch_size)
-        self._logger.forward_times(forward_times)
+
+        if self._master:
+            param_util.count_model_parameters(self.model)
+            self._logger.equation('batch_size', train_data_loader.batch_sampler.batch_size)
+            self._logger.forward_times(forward_times)
         if 'num_epochs' in config and 'num_iters' not in config:
-            self._logger.equation('num_epochs', config['num_epochs'])
-            self._logger.equation('num_iters', config['num_epochs'] * len(train_data_loader))
+            if self._master:
+                self._logger.equation('num_epochs', config['num_epochs'])
+                self._logger.equation('num_iters', config['num_epochs'] * len(train_data_loader))
             self.train_epochs(train_data_loader, test_data_loader=test_data_loader, **config)
 
         elif 'num_epochs' not in config and 'num_iters' in config:
-            self._logger.approx_equation('num_epochs',
-                                         round(config['num_iters'] * forward_times / len(train_data_loader), 1))
-            self._logger.equation('num_iters', config['num_iters'])
+            if self._master:
+                self._logger.approx_equation('num_epochs',
+                                             round(config['num_iters'] * forward_times / len(train_data_loader), 1))
+                self._logger.equation('num_iters', config['num_iters'])
             self.train_iters(train_data_loader, test_data_loader=test_data_loader, **config)
 
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
-        self._ckpt.save()
+        if self._master:
+            self._ckpt.save()
+            if config.get('eval_after_train', True):
+                self.evaluate(test_data_loader)
 
     def init(self):
-        self.init_model_dir()
+        if self._master:
+            self.init_model_dir()
         self._ckpt.try_resume()
 
     def init_model_dir(self):
