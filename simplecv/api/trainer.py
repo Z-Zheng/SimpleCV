@@ -159,9 +159,6 @@ class Launcher(object):
                                        time_cost=time_cost, lr=self.lr)
                 if kwargs.get('summary_weights', True):
                     self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
-        if self._master:
-            if kwargs.get('eval_after_train', True):
-                self.evaluate(test_data_loader)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
         num_epochs = kwargs.get('num_epochs', -1)
@@ -190,8 +187,6 @@ class Launcher(object):
 
             if self._master:
                 self._ckpt.save()
-                if kwargs.get('eval_after_train', True):
-                    self.evaluate(test_data_loader)
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         self.model.train()
@@ -218,6 +213,8 @@ class Launcher(object):
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
         if self._master:
             self._ckpt.save()
+            if config.get('eval_after_train', True):
+                self.evaluate(test_data_loader)
 
     def init(self):
         if self._master:
