@@ -22,8 +22,9 @@ class ResNetEncoder(CVModule):
                  config):
         super(ResNetEncoder, self).__init__(config)
         if all([self.config['output_stride'] != 16,
-                self.config['output_stride'] != 32]):
-            raise ValueError('output_stride must be 16 or 32 .')
+                self.config['output_stride'] != 32,
+                self.config['output_stride'] != 8]):
+            raise ValueError('output_stride must be 8, 16 or 32.')
 
         self.include_conv5 = self.config['include_conv5']
         self.resnet = registry.MODEL[self.config['resnet_type']](pretrained=self.config['pretrained'])
@@ -35,6 +36,9 @@ class ResNetEncoder(CVModule):
 
         if self.config['output_stride'] == 16:
             self.resnet.layer4.apply(partial(self._nostride_dilate, dilate=2))
+        elif self.config['output_stride'] == 8:
+            self.resnet.layer3.apply(partial(self._nostride_dilate, dilate=2))
+            self.resnet.layer4.apply(partial(self._nostride_dilate, dilate=4))
 
     def _frozen_res_bn(self):
         param_util.freeze_modules(self.resnet, nn.BatchNorm2d)
