@@ -56,7 +56,7 @@ def _np_random_crop(image, crop_size):
     pad_h = c_h - im_h
     pad_w = c_w - im_w
     if pad_h > 0 or pad_w > 0:
-        image = np.pad(image, [[0, pad_h], [0, pad_w], [0, 0]], mode='constant', constant_values=0)
+        image = np.pad(image, [[0, max(pad_h, 0)], [0, max(pad_w, 0)], [0, 0]], mode='constant', constant_values=0)
     im_h, im_w, _ = image.shape
 
     y_lim = im_h - c_h + 1
