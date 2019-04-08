@@ -34,7 +34,7 @@ class Launcher(object):
         self._optimizer = optimizer
         self._lr_schedule = lr_schedule
         self._master = get_rank() == 0
-        self._logger = Logger('SimpleCV', use_tensorboard=True, tensorboard_logdir=model_dir)
+        self._logger = Logger('SimpleCV', use_tensorboard=self._master, tensorboard_logdir=model_dir)
         if self._master:
             self._logger.on()
         else:
