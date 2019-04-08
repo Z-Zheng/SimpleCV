@@ -93,7 +93,7 @@ class Launcher(object):
             total_loss = sum([e for e in losses.values()])
 
             # total_loss.backward()
-            self.backward()
+            self.backward(total_loss, self.optimizer)
 
             # log losses
             with torch.no_grad():
