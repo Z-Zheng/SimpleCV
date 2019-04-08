@@ -9,10 +9,10 @@ __all__ = [
 ]
 
 
-def default_backward(total_loss, optimizer):
+def default_backward(self, total_loss, optimizer):
     total_loss.backward()
 
 
-def amp_backward(total_loss, optimizer):
+def amp_backward(self, total_loss, optimizer):
     with amp.scale_loss(total_loss, optimizer) as scaled_loss:
         scaled_loss.backward()
