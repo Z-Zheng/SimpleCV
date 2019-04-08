@@ -7,7 +7,7 @@ install_requires = [
 ]
 setup(
     name='simplecv',
-    version='0.1.0',
+    version='0.2.0',
     description='Simplify training, evaluation, prediction in Pytorch',
     keywords='computer vision using pytorch 1.0',
     packages=find_packages(),

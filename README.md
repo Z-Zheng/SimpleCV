@@ -5,13 +5,15 @@
 ---------------------
 This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ## Change logs
+- 2019/04/08 v0.2.0 released! Support apex!
 - 2019/01/25 summary grads and weights
 - 2018/12/20 support SE Block
 ## Features
 1. Focus on your research rather than training template codes
 2. High performance parallel training using Pytorch 1.0
 3. Dynamic module registration mechanism makes you customize components on the fly
-4. Support tensorboard
+4. Support tensorboard for visualization
+5. Support stable distribute training and Sync BN by NVIDIA/apex
 --------------
 ## Installation
 
@@ -155,7 +157,7 @@ python custom_train.py \
 
 ```
 
-#### Mode 2: use torch.nn.parallel.DistributedDataParallel (unstable)
+#### Mode 2: use torch.nn.parallel.DistributedDataParallel
 ```bash
 export NUM_GPUS=2
 config_path=PATH_TO_YOUR_CONFIG_FILE
@@ -166,7 +168,14 @@ python -m torch.distributed.launch --nproc_per_node=${NUM_GPUS} ${PATH_TO_SIMPLE
     --model_dir=${model_dir}
 ```
 
+#### Mode 3: use apex.parallel.DistributedDataParallel
+This mode has been supported.
+The instructions will be released.
+```bash
+todo
+```
+
 ### TODO
 - Support more preprocess methods using numpy and pytorch
-- Support more preset module such as SyncBatchNorm2D, Deformable Convolution, etc.
-- [ ] add complete demos of segmentation, detecion and classification
+- [ ] add more preset modules
+- [ ] add complete demos of segmentation, detection
