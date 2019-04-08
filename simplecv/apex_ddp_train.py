@@ -9,6 +9,12 @@ from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
 from simplecv.util import param_util
+from simplecv.core import default_backward
+try:
+    from apex import amp
+    from apex.parallel import DistributedDataParallel as DDP
+except ImportError:
+    raise ImportError("Please install apex from https://www.github.com/nvidia/apex")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int)
@@ -17,6 +23,7 @@ parser.add_argument('--config_path', default=None, type=str,
 parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
 parser.add_argument('--cpu', action='store_true', default=False, help='use cpu')
+parser.add_argument('--opt_level', type=str, default='O1', help='O0, O1, O2, O3')
 
 
 def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
@@ -34,8 +41,8 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
             )
         model.to(torch.device('cuda'))
         if dist.is_available():
-            model = nn.parallel.DistributedDataParallel(
-                model, device_ids=[local_rank], output_device=local_rank,
+            model = DDP(
+                model, delay_allreduce=True,
             )
 
     # 2. data
@@ -43,13 +50,23 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
 
     # 3. optimizer
-    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
     lr_schedule = make_learningrate(cfg['learning_rate'])
+    cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
+    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
+
+    model, optimizer = amp.initialize(model, optimizer,
+                                      opt_level=args.opt_level,
+                                      keep_batchnorm_fp32=True,
+                                      loss_scale='dynamic',
+                                      )
+
     tl = trainer.Launcher(
         model_dir=model_dir,
         model=model,
         optimizer=optimizer,
         lr_schedule=lr_schedule)
+    tl.logger.info('[NVIDIA/apex] amp optimizer.')
+    tl.override_backward(default_backward.amp_backward)
 
     if after_construct_launcher_callbacks is not None:
         for f in after_construct_launcher_callbacks:

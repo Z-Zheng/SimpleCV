@@ -1,5 +1,5 @@
-from simplecv import api
-from simplecv.api.trainer import Launcher
+from simplecv import core
+from simplecv.core.trainer import Launcher
 
 from simplecv import interface
 from simplecv import util
