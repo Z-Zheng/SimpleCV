@@ -43,18 +43,6 @@ def run(local_rank,
     # 1. model
     model = make_model(cfg['model'])
 
-    if not cpu_mode:
-        if torch.cuda.is_available():
-            torch.cuda.set_device(local_rank)
-            dist.init_process_group(
-                backend="nccl", init_method="env://"
-            )
-        model.to(torch.device('cuda'))
-        if dist.is_available():
-            model = DDP(
-                model, delay_allreduce=True,
-            )
-
     # 2. data
     traindata_loader = make_dataloader(cfg['data']['train'])
     testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
@@ -64,13 +52,24 @@ def run(local_rank,
     cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
 
-    if OPT_LEVELS.index(opt_level) < 2:
-        keep_batchnorm_fp32 = None
-    model, optimizer = amp.initialize(model, optimizer,
-                                      opt_level=opt_level,
-                                      keep_batchnorm_fp32=keep_batchnorm_fp32,
-                                      loss_scale='dynamic',
-                                      )
+    if not cpu_mode:
+        if torch.cuda.is_available():
+            torch.cuda.set_device(local_rank)
+            dist.init_process_group(
+                backend="nccl", init_method="env://"
+            )
+        model.to(torch.device('cuda'))
+        if dist.is_available():
+            if OPT_LEVELS.index(opt_level) < 2:
+                keep_batchnorm_fp32 = None
+            model, optimizer = amp.initialize(model, optimizer,
+                                              opt_level=opt_level,
+                                              keep_batchnorm_fp32=keep_batchnorm_fp32,
+                                              loss_scale='dynamic',
+                                              )
+            model = DDP(
+                model, delay_allreduce=True,
+            )
 
     tl = trainer.Launcher(
         model_dir=model_dir,
