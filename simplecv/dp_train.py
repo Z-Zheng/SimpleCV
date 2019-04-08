@@ -7,7 +7,7 @@ from simplecv.data.data_loader import make_dataloader
 from simplecv.opt.optimizer import make_optimizer
 from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
-from simplecv.api import trainer
+from simplecv.core import trainer
 from simplecv.util import param_util
 
 parser = argparse.ArgumentParser()

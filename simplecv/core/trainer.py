@@ -11,6 +11,7 @@ import functools
 import types
 import torch
 from torch.nn.utils import clip_grad
+from simplecv.core import default_backward
 
 
 def get_rank():
@@ -33,7 +34,7 @@ class Launcher(object):
         self._optimizer = optimizer
         self._lr_schedule = lr_schedule
         self._master = get_rank() == 0
-        self._logger = Logger('SimpleCV', use_tensorboard=True, tensorboard_logdir=model_dir)
+        self._logger = Logger('SimpleCV', use_tensorboard=self._master, tensorboard_logdir=model_dir)
         if self._master:
             self._logger.on()
         else:
@@ -61,6 +62,10 @@ class Launcher(object):
     def lr(self):
         return self._optimizer.param_groups[0]['lr']
 
+    @property
+    def logger(self):
+        return self._logger
+
     def compute_loss_gradient(self, data):
         """
 
@@ -87,7 +92,8 @@ class Launcher(object):
             losses = average_dict(losses)
             total_loss = sum([e for e in losses.values()])
 
-            total_loss.backward()
+            # total_loss.backward()
+            self.backward(total_loss, self.optimizer)
 
             # log losses
             with torch.no_grad():
@@ -227,8 +233,14 @@ class Launcher(object):
     def evaluate(self, data_loader):
         raise NotImplementedError
 
+    def backward(self, total_loss, optimizer, **kwargs):
+        default_backward.default_backward(total_loss, optimizer)
+
     def override_evaluate(self, fn):
         self.evaluate = types.MethodType(fn, self)
+
+    def override_backward(self, fn):
+        self.backward = types.MethodType(fn, self)
 
 
 def scale_dict(input_dict, scale):
