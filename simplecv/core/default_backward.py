@@ -1,7 +1,10 @@
+import warnings
+
 try:
     from apex import amp
 except ImportError:
-    raise ImportError("Please install apex from https://www.github.com/nvidia/apex")
+    # warnings.warn("If you want to use apex, please install apex from https://www.github.com/nvidia/apex")
+    pass
 
 __all__ = [
     'default_backward',
