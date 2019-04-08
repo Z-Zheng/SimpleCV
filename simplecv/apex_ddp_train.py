@@ -12,6 +12,7 @@ from simplecv.util import param_util
 from simplecv.core import default_backward
 
 try:
+    import apex
     from apex import amp
     from apex.parallel import DistributedDataParallel as DDP
 except ImportError:
@@ -42,7 +43,8 @@ def run(local_rank,
 
     # 1. model
     model = make_model(cfg['model'])
-
+    if cfg['train'].get('apex_sync_bn', False):
+        model = apex.parallel.convert_syncbn_model(model)
     # 2. optimizer
     lr_schedule = make_learningrate(cfg['learning_rate'])
     cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
@@ -74,7 +76,9 @@ def run(local_rank,
         model=model,
         optimizer=optimizer,
         lr_schedule=lr_schedule)
+    # log dist train info
     tl.logger.info('[NVIDIA/apex] amp optimizer. opt_level = {}'.format(opt_level))
+    tl.logger.info('apex sync bn: {}'.format('on' if cfg['train'].get('apex_sync_bn', False) else 'off'))
     tl.override_backward(default_backward.amp_backward)
 
     if after_construct_launcher_callbacks is not None:
