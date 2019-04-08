@@ -11,7 +11,7 @@ config = dict(
                     freeze_at=0,
                     # 8, 16 or 32
                     output_stride=16,
-                    with_cp=(True, True, True, True),
+                    with_cp=(False, False, False, False),
                     stem3_3x3=False,
                 ),
             ),
@@ -93,6 +93,7 @@ config = dict(
         summary_weights=False,
         distributed=True,
         apex_sync_bn=True,
+        eval_after_train=True,
     ),
     test=dict(
     ),
