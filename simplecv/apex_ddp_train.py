@@ -25,12 +25,16 @@ parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
 parser.add_argument('--cpu', action='store_true', default=False, help='use cpu')
 parser.add_argument('--opt_level', type=str, default='O0', help='O0, O1, O2, O3')
+parser.add_argument('--keep_batchnorm_fp32', type=bool, default=None, help='')
+
+OPT_LEVELS = ['O0', 'O1', 'O2', 'O3']
 
 
 def run(local_rank,
         config_path,
         model_dir,
         opt_level='O0',
+        keep_batchnorm_fp32=None,
         cpu_mode=False,
         after_construct_launcher_callbacks=None):
     # 0. config
@@ -60,9 +64,11 @@ def run(local_rank,
     cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
 
+    if OPT_LEVELS.index(opt_level) < 2:
+        keep_batchnorm_fp32 = None
     model, optimizer = amp.initialize(model, optimizer,
                                       opt_level=opt_level,
-                                      keep_batchnorm_fp32=True,
+                                      keep_batchnorm_fp32=keep_batchnorm_fp32,
                                       loss_scale='dynamic',
                                       )
 
@@ -89,4 +95,5 @@ if __name__ == '__main__':
         config_path=args.config_path,
         model_dir=args.model_dir,
         opt_level=args.opt_level,
+        keep_batchnorm_fp32=args.keep_batchnorm_fp32,
         cpu_mode=args.cpu)
