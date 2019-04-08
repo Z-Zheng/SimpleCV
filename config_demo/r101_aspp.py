@@ -45,7 +45,8 @@ config = dict(
                 crop_size=(512, 512),
                 training=True,
                 scale_range=[0.5, 2],
-                batch_size=16,
+                # single device batch size
+                batch_size=8,
                 num_workers=2,
                 img_dir='./voc2012/aug_image',
                 mask_dir='./voc2012/aug_mask',
