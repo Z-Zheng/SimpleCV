@@ -43,11 +43,7 @@ def run(local_rank,
     # 1. model
     model = make_model(cfg['model'])
 
-    # 2. data
-    traindata_loader = make_dataloader(cfg['data']['train'])
-    testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
-
-    # 3. optimizer
+    # 2. optimizer
     lr_schedule = make_learningrate(cfg['learning_rate'])
     cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
     optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
@@ -70,7 +66,9 @@ def run(local_rank,
             model = DDP(
                 model, delay_allreduce=True,
             )
-
+    # 3. data
+    traindata_loader = make_dataloader(cfg['data']['train'])
+    testdata_loader = make_dataloader(cfg['data']['test']) if 'test' in cfg['data'] else None
     tl = trainer.Launcher(
         model_dir=model_dir,
         model=model,
