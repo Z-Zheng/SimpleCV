@@ -179,3 +179,8 @@ todo
 - Support more preprocess methods using numpy and pytorch
 - [ ] add more preset modules
 - [ ] add complete demos of segmentation, detection
+
+### Recent plans
+
+- [ ] add current time and ETA for training
+- [ ] add search lr function such as the one in Fast.ai
