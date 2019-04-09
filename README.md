@@ -184,3 +184,4 @@ todo
 
 - [ ] add current time and ETA for training
 - [ ] add search lr function such as the one in Fast.ai
+- [ ] change checkpoint format from model-step.pth to model-step-epoch.pth
