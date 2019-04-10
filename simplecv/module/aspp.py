@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from simplecv import registry
 from simplecv.module.sep_conv import SeparableConv2D
 from simplecv.module.gap import GlobalAvgPool2D
+from simplecv.util import param_util
 
 
 @registry.OP.register('aspp')
@@ -15,6 +16,7 @@ class AtrousSpatialPyramidPool(nn.Module):
                  add_image_level=True,
                  use_bias=True,
                  use_batchnorm=False,
+                 batchnorm_trainable=False,
                  norm_type='batchnorm'):
         super(AtrousSpatialPyramidPool, self).__init__()
         norm_fn = registry.OP[norm_type]
@@ -23,6 +25,7 @@ class AtrousSpatialPyramidPool(nn.Module):
         self.rate_list = atrous_rates
         self.add_image_level = add_image_level
         self.use_batchnorm = use_batchnorm
+        self.batchnorm_trainable = batchnorm_trainable
         self.aspp_dim = aspp_dim
 
         layers = [nn.Conv2d(in_channel, aspp_dim, kernel_size=1, bias=use_bias)]
@@ -55,6 +58,12 @@ class AtrousSpatialPyramidPool(nn.Module):
         layers.append(nn.ReLU(inplace=True))
         self.merge_conv = nn.Sequential(*layers)
         self.dropout = nn.Dropout(p=0.1)
+
+        if self.use_batchnorm and not self.batchnorm_trainable:
+            param_util.freeze_modules(self, nn.BatchNorm2d)
+            for m in self.modules():
+                if isinstance(m, nn.BatchNorm2d):
+                    m.eval()
 
     def forward(self, x):
         # aspp feat

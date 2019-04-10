@@ -15,7 +15,7 @@ parser.add_argument('--config_path', default=None, type=str,
                     help='path to config file')
 parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
-parser.add_argument('--cpu', action='store_true', default=False, help='use cutout')
+parser.add_argument('--cpu', action='store_true', default=False, help='')
 
 
 def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
