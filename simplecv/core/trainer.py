@@ -199,6 +199,7 @@ class Launcher(object):
         forward_times = config['forward_times'] if 'forward_times' in config else 1
 
         if self._master:
+            param_util.trainable_parameters(self.model)
             param_util.count_model_parameters(self.model)
             self._logger.equation('batch_size', train_data_loader.batch_sampler.batch_size)
             self._logger.forward_times(forward_times)
@@ -234,7 +235,7 @@ class Launcher(object):
         raise NotImplementedError
 
     def backward(self, total_loss, optimizer, **kwargs):
-        default_backward.default_backward(total_loss, optimizer)
+        total_loss.backward()
 
     def override_evaluate(self, fn):
         self.evaluate = types.MethodType(fn, self)

@@ -48,7 +48,7 @@ def run(local_rank,
     # 2. optimizer
     lr_schedule = make_learningrate(cfg['learning_rate'])
     cfg['optimizer']['params']['lr'] = lr_schedule.base_lr
-    optimizer = make_optimizer(cfg['optimizer'], params=param_util.trainable_parameters(model))
+    optimizer = make_optimizer(cfg['optimizer'], params=model.parameters())
 
     if not cpu_mode:
         if torch.cuda.is_available():
