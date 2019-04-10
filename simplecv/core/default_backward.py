@@ -7,13 +7,8 @@ except ImportError:
     pass
 
 __all__ = [
-    'default_backward',
     'amp_backward'
 ]
-
-
-def default_backward(self, total_loss, optimizer):
-    total_loss.backward()
 
 
 def amp_backward(self, total_loss, optimizer):
