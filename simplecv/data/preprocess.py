@@ -65,6 +65,23 @@ def resize_to_range(image, min_size, max_size):
         raise ValueError('The type {} is not support'.format(type(image)))
 
 
+def transpose(image, mask=None, boxes=None):
+    ret = []
+    new_image = np.transpose(image, axes=[1, 0, 2])
+    ret.append(new_image)
+
+    if mask is not None:
+        new_mask = np.transpose(mask, axes=[0, 1])
+        ret.append(new_mask)
+    if boxes is not None:
+        x1, y1, x2, y2 = np.split(boxes, 4, axis=1)
+
+        new_boxes = np.concatenate([y1, x1, y2, x2], axis=1)
+        ret.append(new_boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
 def rotate_90(image, mask=None, boxes=None):
     ret = []
     new_image = np.rot90(image, k=1)
@@ -77,7 +94,43 @@ def rotate_90(image, mask=None, boxes=None):
         h, w = image.shape[:2]
         x1, y1, x2, y2 = np.split(boxes, 4, axis=1)
 
-        new_boxes = np.concatenate([y1, w - x2, h - y2, w - x1])
+        new_boxes = np.concatenate([y1, w - x2, y2, w - x1], axis=1)
+        ret.append(new_boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def rotate_180(image, mask=None, boxes=None):
+    ret = []
+    new_image = np.rot90(image, k=2)
+    ret.append(new_image)
+
+    if mask is not None:
+        new_mask = np.rot90(mask, k=2)
+        ret.append(new_mask)
+    if boxes is not None:
+        h, w = image.shape[:2]
+        x1, y1, x2, y2 = np.split(boxes, 4, axis=1)
+
+        new_boxes = np.concatenate([w - x2, h - y2, w - x1, h - y1], axis=1)
+        ret.append(new_boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def rotate_270(image, mask=None, boxes=None):
+    ret = []
+    new_image = np.rot90(image, k=3)
+    ret.append(new_image)
+
+    if mask is not None:
+        new_mask = np.rot90(mask, k=3)
+        ret.append(new_mask)
+    if boxes is not None:
+        h, w = image.shape[:2]
+        x1, y1, x2, y2 = np.split(boxes, 4, axis=1)
+
+        new_boxes = np.concatenate([h - y2, x1, h - y1, x2], axis=1)
         ret.append(new_boxes)
 
     return tuple(ret) if len(ret) != 1 else ret[0]
@@ -277,6 +330,48 @@ def random_flip_left_right(image, mask=None, boxes=None, prob=0.5):
 def random_rotate_90(image, mask=None, boxes=None, prob=0.5):
     if np.random.random() < prob:
         return rotate_90(image, mask, boxes)
+
+    ret = [image]
+    if mask is not None:
+        ret.append(mask)
+
+    if boxes is not None:
+        ret.append(boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def random_rotate_180(image, mask=None, boxes=None, prob=0.5):
+    if np.random.random() < prob:
+        return rotate_180(image, mask, boxes)
+
+    ret = [image]
+    if mask is not None:
+        ret.append(mask)
+
+    if boxes is not None:
+        ret.append(boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def random_rotate_270(image, mask=None, boxes=None, prob=0.5):
+    if np.random.random() < prob:
+        return rotate_270(image, mask, boxes)
+
+    ret = [image]
+    if mask is not None:
+        ret.append(mask)
+
+    if boxes is not None:
+        ret.append(boxes)
+
+    return tuple(ret) if len(ret) != 1 else ret[0]
+
+
+def random_transpose(image, mask=None, boxes=None, prob=0.5):
+    if np.random.random() < prob:
+        return transpose(image, mask, boxes)
 
     ret = [image]
     if mask is not None:
