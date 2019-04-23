@@ -21,6 +21,11 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 pip install git+https://github.com/Z-Zheng/simplecv.git
 ```
 
+#### Requirements:
+- pytorch == 1.0.0
+- tensorboardX
+- opencv
+
 ## Citing SimpleCV
 If you use SimpleCV in your research, please use the following BibTeX entry.
 ```
@@ -31,11 +36,6 @@ If you use SimpleCV in your research, please use the following BibTeX entry.
   year =         {2018}
 }
 ```
-
-#### Requirements:
-- pytorch == 1.0.0
-- tensorboardX
-- opencv
 
 ## Usage
 ### 1. Define your model using CVModule and register it with one line code.
