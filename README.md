@@ -20,6 +20,18 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ```bash
 pip install git+https://github.com/Z-Zheng/simplecv.git
 ```
+
+## Citing SimpleCV
+If you use SimpleCV in your research, please use the following BibTeX entry.
+```
+@misc{SimpleCV2018,
+  author =       {Zhuo Zheng},
+  title =        {SimpleCV},
+  howpublished = {\url{https://github.com/Z-Zheng/simplecv}},
+  year =         {2018}
+}
+```
+
 #### Requirements:
 - pytorch == 1.0.0
 - tensorboardX
