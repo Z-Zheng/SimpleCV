@@ -26,12 +26,12 @@ class CVModule(nn.Module):
     def config(self):
         return self._cfg
 
-    def __repr__(self):
-        s = '[config]\n'
-        for k, v in self.config.items():
-            s += '{name} = {value}\n'.format(name=k, value=v)
-        s += '[------]'
-        return s
+    # def __repr__(self):
+    #     s = '[config]\n'
+    #     for k, v in self.config.items():
+    #         s += '{name} = {value}\n'.format(name=k, value=v)
+    #     s += '[------]'
+    #     return s
 
 
 class Loss(CVModule):
