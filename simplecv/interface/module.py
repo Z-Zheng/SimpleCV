@@ -1,10 +1,11 @@
 import torch.nn as nn
+from simplecv.core import AttrDict
 
 
 class CVModule(nn.Module):
     def __init__(self, config):
         super(CVModule, self).__init__()
-        self._cfg = dict(
+        self._cfg = AttrDict(
 
         )
         self.set_defalut_config()
