@@ -1,10 +1,11 @@
 import torch.nn as nn
+from simplecv.core import AttrDict
 
 
 class CVModule(nn.Module):
     def __init__(self, config):
         super(CVModule, self).__init__()
-        self._cfg = dict(
+        self._cfg = AttrDict(
 
         )
         self.set_defalut_config()
@@ -25,12 +26,12 @@ class CVModule(nn.Module):
     def config(self):
         return self._cfg
 
-    def __repr__(self):
-        s = '[config]\n'
-        for k, v in self.config.items():
-            s += '{name} = {value}\n'.format(name=k, value=v)
-        s += '[------]'
-        return s
+    # def __repr__(self):
+    #     s = '[config]\n'
+    #     for k, v in self.config.items():
+    #         s += '{name} = {value}\n'.format(name=k, value=v)
+    #     s += '[------]'
+    #     return s
 
 
 class Loss(CVModule):

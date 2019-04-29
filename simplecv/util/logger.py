@@ -62,13 +62,17 @@ class Logger(object):
                     continue
                 self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
 
-    def train_log(self, step, loss_dict, time_cost, lr, metric_dict=None):
+    def train_log(self, step, loss_dict, time_cost, lr, num_iters, metric_dict=None, ):
         smooth_loss_dict = self.create_or_get_smoothvalues(loss_dict)
         loss_info = ''.join(
             ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
              smooth_loss_dict.items()])
         step_info = 'step: {}\t'.format(int(step))
-        time_cost_info = '({} sec / step)'.format(round(time_cost, 3))
+        eta = (num_iters - step) * time_cost
+        m, s = divmod(eta, 60)
+        h, m = divmod(m, 60)
+        eta_str = "%02d:%02d:%02d" % (h, m, s)
+        time_cost_info = '({} sec / step, eta: {})'.format(round(time_cost, 3), eta_str)
 
         if metric_dict:
             metric_info = ''.join(
