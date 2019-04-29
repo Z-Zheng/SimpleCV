@@ -29,13 +29,13 @@ class Logger(object):
             self.summary_w = tensorboardX.SummaryWriter(log_dir=tensorboard_logdir)
         self.smoothvalues = dict()
 
-    def create_or_get_smoothvalues(self, loss_dict):
-        for key, value in loss_dict.items():
+    def create_or_get_smoothvalues(self, value_dict: dict):
+        for key, value in value_dict.items():
             if key not in self.smoothvalues:
                 self.smoothvalues[key] = SmoothedValue(100)
             self.smoothvalues[key].add_value(value)
 
-        return {key: smoothvalue.get_average_value() for key, smoothvalue in self.smoothvalues.items()}
+        return {key: self.smoothvalues[key].get_average_value() for key, _ in value_dict.items()}
 
     def info(self, value):
         self._logger.info(value)
@@ -68,7 +68,9 @@ class Logger(object):
             ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
              smooth_loss_dict.items()])
         step_info = 'step: {}\t'.format(int(step))
-        eta = (num_iters - step) * time_cost
+        # eta
+        smooth_time_cost = self.create_or_get_smoothvalues({'time_cost': time_cost})['time_cost']
+        eta = (num_iters - step) * smooth_time_cost
         m, s = divmod(eta, 60)
         h, m = divmod(m, 60)
         eta_str = "%02d:%02d:%02d" % (h, m, s)
