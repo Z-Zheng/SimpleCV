@@ -161,7 +161,7 @@ class Launcher(object):
                 time_cost = time.time() - start
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                       time_cost=time_cost, lr=self.lr)
+                                       time_cost=time_cost, lr=self.lr, num_iters=num_iters)
                 if kwargs.get('summary_weights', True):
                     self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
@@ -171,6 +171,8 @@ class Launcher(object):
         iterator = Iterator(train_data_loader)
         for i in range(num_epochs):
             self._model.train()
+            if kwargs.get('distributed', False):
+                iterator.set_seed_for_dist_sampler(self._ckpt.global_step)
             for data_list in iterator.iter(forward_times=forward_times):
                 start = time.time()
                 loss_dict = self.compute_loss_gradient(data_list)
