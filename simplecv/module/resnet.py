@@ -10,10 +10,31 @@ from simplecv.interface import CVModule
 from simplecv import registry
 from simplecv.util import param_util
 
+__all__ = ['make_layer',
+           'ResNetEncoder']
+
 registry.MODEL.register('resnet18', resnet18)
 registry.MODEL.register('resnet34', resnet34)
 registry.MODEL.register('resnet50', resnet50)
 registry.MODEL.register('resnet101', resnet101)
+
+
+def make_layer(block, in_channel, basic_out_channel, blocks, stride=1, dilation=1):
+    downsample = None
+    if stride != 1 or in_channel != basic_out_channel * block.expansion:
+        downsample = nn.Sequential(
+            nn.Conv2d(in_channel, basic_out_channel * block.expansion,
+                      kernel_size=1, stride=stride, bias=False),
+            nn.BatchNorm2d(basic_out_channel * block.expansion),
+        )
+
+    layers = []
+    layers.append(block(in_channel, basic_out_channel, stride, dilation, downsample))
+    in_channel = basic_out_channel * block.expansion
+    for i in range(1, blocks):
+        layers.append(block(in_channel, basic_out_channel, dilation=dilation))
+
+    return nn.Sequential(*layers)
 
 
 @registry.MODEL.register('resnet_encoder')
