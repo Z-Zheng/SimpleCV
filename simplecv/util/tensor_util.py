@@ -27,7 +27,7 @@ def to_tensor(blob):
 
 def to_device(blob, device):
     if isinstance(blob, torch.Tensor):
-        return blob.to(device, non_blocking=False)
+        return blob.to(device)
 
     if isinstance(blob, dict):
         ts = {}
@@ -46,3 +46,4 @@ def to_device(blob, device):
         else:
             ts = tuple([to_device(e, device) for e in blob])
         return ts
+    raise ValueError('type of {} is not support for to_device'.format(type(blob)))

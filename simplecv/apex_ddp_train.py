@@ -35,7 +35,6 @@ def run(local_rank,
         config_path,
         model_dir,
         opt_level='O0',
-        keep_batchnorm_fp32=None,
         cpu_mode=False,
         after_construct_launcher_callbacks=None):
     # 0. config
@@ -58,12 +57,10 @@ def run(local_rank,
             )
         model.to(torch.device('cuda'))
         if dist.is_available():
-            if OPT_LEVELS.index(opt_level) < 2:
-                keep_batchnorm_fp32 = None
+            # if OPT_LEVELS.index(opt_level) < 2:
+            #     keep_batchnorm_fp32 = None
             model, optimizer = amp.initialize(model, optimizer,
                                               opt_level=opt_level,
-                                              keep_batchnorm_fp32=keep_batchnorm_fp32,
-                                              loss_scale='dynamic',
                                               )
             model = DDP(
                 model, delay_allreduce=True,
@@ -96,5 +93,4 @@ if __name__ == '__main__':
         config_path=args.config_path,
         model_dir=args.model_dir,
         opt_level=args.opt_level,
-        keep_batchnorm_fp32=args.keep_batchnorm_fp32,
         cpu_mode=args.cpu)
