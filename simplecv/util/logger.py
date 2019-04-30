@@ -70,11 +70,14 @@ class Logger(object):
         step_info = 'step: {}\t'.format(int(step))
         # eta
         smooth_time_cost = self.create_or_get_smoothvalues({'time_cost': time_cost})['time_cost']
-        eta = (num_iters - step) * smooth_time_cost
-        m, s = divmod(eta, 60)
-        h, m = divmod(m, 60)
-        eta_str = "%02d:%02d:%02d" % (h, m, s)
-        time_cost_info = '({} sec / step, eta: {})'.format(round(time_cost, 3), eta_str)
+        if num_iters is not None:
+            eta = (num_iters - step) * smooth_time_cost
+            m, s = divmod(eta, 60)
+            h, m = divmod(m, 60)
+            eta_str = "%02d:%02d:%02d" % (h, m, s)
+            time_cost_info = '({} sec / step, eta: {})'.format(round(time_cost, 3), eta_str)
+        else:
+            time_cost_info = '({} sec / step)'.format(round(time_cost, 3))
 
         if metric_dict:
             metric_info = ''.join(
@@ -120,6 +123,7 @@ class Logger(object):
             elif isinstance(value, np.ndarray):
                 for idx, nd_v in enumerate(value):
                     self.summary_w.add_scalar('eval/{}_{}'.format(name, idx), float(nd_v), global_step=step)
+        self.summary_w.file_writer.flush()
 
     def forward_times(self, forward_times):
         self._logger.info('use {} forward and {} backward mode.'.format(forward_times, forward_times))

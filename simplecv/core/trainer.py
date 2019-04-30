@@ -191,7 +191,7 @@ class Launcher(object):
                     time_cost = time.time() - start
 
                     self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                           time_cost=time_cost, lr=self.lr)
+                                           time_cost=time_cost, lr=self.lr, num_iters=None)
                     if kwargs.get('summary_weights', True):
                         self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
