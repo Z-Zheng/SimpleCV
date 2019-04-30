@@ -3,6 +3,7 @@ import torch.distributed as dist
 from simplecv.util.logger import Logger
 from simplecv.util.checkpoint import CheckPoint
 from simplecv.data.iterator import Iterator
+from simplecv.util import tensor_util
 import time
 from torch.optim.lr_scheduler import _LRScheduler
 from simplecv.opt.learning_rate import LearningRateBase
@@ -35,6 +36,7 @@ class Launcher(object):
         self._lr_schedule = lr_schedule
         self._master = get_rank() == 0
         self._logger = Logger('SimpleCV', use_tensorboard=self._master, tensorboard_logdir=model_dir)
+        self._device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         if self._master:
             self._logger.on()
         else:
@@ -81,6 +83,7 @@ class Launcher(object):
         loss_dict = {'total_loss': 0.0}
 
         for d in data:
+            d = tensor_util.to_device(d, self._device)
             msg_dict = self._model(*d)
 
             losses = {k: v for k, v in msg_dict.items() if k.endswith('loss')}
