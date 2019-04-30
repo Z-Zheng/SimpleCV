@@ -123,6 +123,7 @@ class Logger(object):
             elif isinstance(value, np.ndarray):
                 for idx, nd_v in enumerate(value):
                     self.summary_w.add_scalar('eval/{}_{}'.format(name, idx), float(nd_v), global_step=step)
+        self.summary_w.file_writer.flush()
 
     def forward_times(self, forward_times):
         self._logger.info('use {} forward and {} backward mode.'.format(forward_times, forward_times))
