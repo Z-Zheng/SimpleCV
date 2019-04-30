@@ -42,22 +42,21 @@ class ResNetEncoder(CVModule):
     def __init__(self,
                  config):
         super(ResNetEncoder, self).__init__(config)
-        if all([self.config['output_stride'] != 16,
-                self.config['output_stride'] != 32,
-                self.config['output_stride'] != 8]):
+        if all([self.config.output_stride != 16,
+                self.config.output_stride != 32,
+                self.config.output_stride != 8]):
             raise ValueError('output_stride must be 8, 16 or 32.')
 
-        self.include_conv5 = self.config['include_conv5']
-        self.resnet = registry.MODEL[self.config['resnet_type']](pretrained=self.config['pretrained'])
+        self.resnet = registry.MODEL[self.config.resnet_type](pretrained=self.config.pretrained)
         self.resnet._modules.pop('fc')
-        if not self.config['batchnorm_trainable']:
+        if not self.config.batchnorm_trainable:
             self._frozen_res_bn()
 
-        self._freeze_at(at=self.config['freeze_at'])
+        self._freeze_at(at=self.config.freeze_at)
 
-        if self.config['output_stride'] == 16:
+        if self.config.output_stride == 16:
             self.resnet.layer4.apply(partial(self._nostride_dilate, dilate=2))
-        elif self.config['output_stride'] == 8:
+        elif self.config.output_stride == 8:
             self.resnet.layer3.apply(partial(self._nostride_dilate, dilate=2))
             self.resnet.layer4.apply(partial(self._nostride_dilate, dilate=4))
 
@@ -99,23 +98,23 @@ class ResNetEncoder(CVModule):
         x = self.resnet.maxpool(x)
 
         # os 4, #layers/outdim: 18,34/64; 50,101,152/256
-        if self.with_cp[0] and x.requires_grad:
+        if self.config.with_cp[0] and x.requires_grad:
             c2 = cp.checkpoint(self.get_function(self.resnet.layer1), x)
         else:
             c2 = self.resnet.layer1(x)
         # os 8, #layers/outdim: 18,34/128; 50,101,152/512
-        if self.with_cp[1] and c2.requires_grad:
+        if self.config.with_cp[1] and c2.requires_grad:
             c3 = cp.checkpoint(self.get_function(self.resnet.layer2), c2)
         else:
             c3 = self.resnet.layer2(c2)
         # os 16, #layers/outdim: 18,34/256; 50,101,152/1024
-        if self.with_cp[2] and c3.requires_grad:
+        if self.config.with_cp[2] and c3.requires_grad:
             c4 = cp.checkpoint(self.get_function(self.resnet.layer3), c3)
         else:
             c4 = self.resnet.layer3(c3)
         # os 32, #layers/outdim: 18,34/512; 50,101,152/2048
-        if self.include_conv5:
-            if self.with_cp[3] and c4.requires_grad:
+        if self.config.include_conv5:
+            if self.config.with_cp[3] and c4.requires_grad:
                 c5 = cp.checkpoint(self.get_function(self.resnet.layer4), c4)
             else:
                 c5 = self.resnet.layer4(c4)
