@@ -10,8 +10,8 @@ class CVModule(nn.Module):
         )
         self.set_defalut_config()
         self._update_config(config)
-        for k, v in self.config.items():
-            self.__dict__[k] = v
+        # for k, v in self.config.items():
+        #     self.__dict__[k] = v
 
     def forward(self, *input):
         raise NotImplementedError
@@ -25,13 +25,6 @@ class CVModule(nn.Module):
     @property
     def config(self):
         return self._cfg
-
-    # def __repr__(self):
-    #     s = '[config]\n'
-    #     for k, v in self.config.items():
-    #         s += '{name} = {value}\n'.format(name=k, value=v)
-    #     s += '[------]'
-    #     return s
 
 
 class Loss(CVModule):
