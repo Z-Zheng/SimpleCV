@@ -157,7 +157,7 @@ class Launcher(object):
             clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                       **grad_clip_config)
             if self._master:
-                if kwargs.get('summary_grads', True):
+                if kwargs.get('summary_grads', False):
                     self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
             if self._master:
@@ -165,7 +165,7 @@ class Launcher(object):
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                        time_cost=time_cost, lr=self.lr, num_iters=num_iters)
-                if kwargs.get('summary_weights', True):
+                if kwargs.get('summary_weights', False):
                     self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
@@ -184,7 +184,7 @@ class Launcher(object):
                 clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                           **grad_clip_config)
                 if self._master:
-                    if kwargs.get('summary_grads', True):
+                    if kwargs.get('summary_grads', False):
                         self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
                 self.apply_gradient()
                 if self._master:
@@ -192,7 +192,7 @@ class Launcher(object):
 
                     self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
                                            time_cost=time_cost, lr=self.lr, num_iters=None)
-                    if kwargs.get('summary_weights', True):
+                    if kwargs.get('summary_weights', False):
                         self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
             if self._master:
