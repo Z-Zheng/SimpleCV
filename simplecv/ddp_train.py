@@ -25,6 +25,8 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
 
     # 1. model
     model = make_model(cfg['model'])
+    if cfg['train'].get('sync_bn', False):
+        model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
     if not cpu_mode:
         if torch.cuda.is_available():
