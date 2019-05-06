@@ -62,7 +62,9 @@ class Logger(object):
                     continue
                 self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
 
-    def train_log(self, step, loss_dict, time_cost, lr, num_iters, metric_dict=None, ):
+    def train_log(self, step, loss_dict, time_cost, lr, num_iters, metric_dict=None,
+                  tensorboard_interval_step=100,
+                  log_interval_step=1):
         smooth_loss_dict = self.create_or_get_smoothvalues(loss_dict)
         loss_info = ''.join(
             ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
@@ -89,9 +91,10 @@ class Logger(object):
         msg = '{loss}{metric}{lr}{step}{time}'.format(loss=loss_info, metric=metric_info, step=step_info,
                                                       lr=lr_info,
                                                       time=time_cost_info)
-        self._logger.info(msg)
+        if step % log_interval_step == 0:
+            self._logger.info(msg)
 
-        if self.use_tensorboard and step % 100 == 0:
+        if self.use_tensorboard and step % tensorboard_interval_step == 0:
             self.train_summary(step, smooth_loss_dict, time_cost, lr, metric_dict)
 
     def train_summary(self, step, loss_dict, time_cost, lr, metric_dict=None):

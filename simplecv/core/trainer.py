@@ -138,6 +138,11 @@ class Launcher(object):
         num_iters = kwargs.get('num_iters', -1)
         forward_times = kwargs.get('forward_times', 1)
         eval_per_epoch = kwargs.get('eval_per_epoch', True)
+        tensorboard_interval_step = kwargs.get('tensorboard_interval_step', 100)
+        log_interval_step = kwargs.get('log_interval_step', 1)
+        distributed = kwargs.get('distributed', False)
+        summary_grads = kwargs.get('summary_grads', False)
+        summary_weights = kwargs.get('summary_weights', False)
 
         iterator = Iterator(train_data_loader)
         call_backs = [self._ckpt.save]
@@ -145,7 +150,7 @@ class Launcher(object):
             call_backs.append(functools.partial(self.evaluate, test_data_loader))
         while self._ckpt.global_step < num_iters:
             start = time.time()
-            if kwargs.get('distributed', False):
+            if distributed:
                 iterator.set_seed_for_dist_sampler(self._ckpt.global_step)
             data_list = iterator.next(forward_times,
                                       call_backs=call_backs,
@@ -157,20 +162,25 @@ class Launcher(object):
             clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
                                       **grad_clip_config)
             if self._master:
-                if kwargs.get('summary_grads', False):
+                if summary_grads:
                     self._logger.summary_grads(module=self.model.module, step=self._ckpt.global_step)
             self.apply_gradient()
             if self._master:
                 time_cost = time.time() - start
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                       time_cost=time_cost, lr=self.lr, num_iters=num_iters)
-                if kwargs.get('summary_weights', False):
+                                       time_cost=time_cost, lr=self.lr, num_iters=num_iters,
+                                       tensorboard_interval_step=tensorboard_interval_step,
+                                       log_interval_step=log_interval_step)
+                if summary_weights:
                     self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
     def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
         num_epochs = kwargs.get('num_epochs', -1)
         forward_times = kwargs.get('forward_times', 1)
+        tensorboard_interval_step = kwargs.get('tensorboard_interval_step', 100)
+        log_interval_step = kwargs.get('log_interval_step', 1)
+
         iterator = Iterator(train_data_loader)
         for i in range(num_epochs):
             self._model.train()
@@ -191,7 +201,9 @@ class Launcher(object):
                     time_cost = time.time() - start
 
                     self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
-                                           time_cost=time_cost, lr=self.lr, num_iters=None)
+                                           time_cost=time_cost, lr=self.lr, num_iters=None,
+                                           tensorboard_interval_step=tensorboard_interval_step,
+                                           log_interval_step=log_interval_step)
                     if kwargs.get('summary_weights', False):
                         self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
 
