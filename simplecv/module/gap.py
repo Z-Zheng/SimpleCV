@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-GlobalAvgPool2D = nn.AdaptiveAvgPool2d(1)
+GlobalAvgPool2D = lambda: nn.AdaptiveAvgPool2d(1)
 
 
 class GlobalAvgPool2DBaseline(nn.Module):

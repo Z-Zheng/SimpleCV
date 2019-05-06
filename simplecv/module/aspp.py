@@ -17,9 +17,10 @@ class AtrousSpatialPyramidPool(nn.Module):
                  use_bias=True,
                  use_batchnorm=False,
                  batchnorm_trainable=False,
-                 norm_type='batchnorm'):
+                 norm_type='batchnorm',
+                 conv_op=nn.Conv2d):
         super(AtrousSpatialPyramidPool, self).__init__()
-        norm_fn = registry.OP[norm_type]
+        norm_fn = registry.OP[norm_type] if use_batchnorm else nn.Identity
 
         self.add_image_level = add_image_level
         self.rate_list = atrous_rates
@@ -28,18 +29,27 @@ class AtrousSpatialPyramidPool(nn.Module):
         self.batchnorm_trainable = batchnorm_trainable
         self.aspp_dim = aspp_dim
 
-        layers = [nn.Conv2d(in_channel, aspp_dim, kernel_size=1, bias=use_bias)]
-        if use_batchnorm:
-            layers.append(norm_fn(aspp_dim))
-        layers.append(nn.ReLU(inplace=True))
-        self.conv1x1 = nn.Sequential(*layers)
+        self.conv1x1 = nn.Sequential(
+            nn.Conv2d(in_channel, aspp_dim, kernel_size=1, bias=use_bias),
+            norm_fn(aspp_dim),
+            nn.ReLU(inplace=True)
+        )
 
         self.aspp_convs = nn.ModuleList()
+
         for rate in atrous_rates:
+            if issubclass(conv_op, nn.Conv2d):
+                conv_op_intance = nn.Conv2d(in_channel, aspp_dim, kernel_size=3, stride=1, padding=rate, dilation=rate,
+                                            bias=use_bias)
+            elif issubclass(conv_op, SeparableConv2D):
+                conv_op_intance = SeparableConv2D(in_channel, aspp_dim, kernel_size=3, stride=1, padding=rate,
+                                                  dilation=rate,
+                                                  bias=use_bias, use_batchnorm=use_batchnorm, norm_fn=norm_fn)
+            else:
+                raise ValueError('Type {} is not support.'.format(type(conv_op)))
             self.aspp_convs.append(
                 nn.Sequential(
-                    SeparableConv2D(in_channel, aspp_dim, kernel_size=3, stride=1, padding=rate, dilation=rate,
-                                    bias=use_bias, use_batchnorm=use_batchnorm, norm_fn=norm_fn),
+                    conv_op_intance,
                     nn.ReLU(inplace=True)
                 )
             )
@@ -52,11 +62,11 @@ class AtrousSpatialPyramidPool(nn.Module):
             )
         merge_inchannel = 1 + len(atrous_rates) + int(add_image_level)
         # projection
-        layers = [nn.Conv2d(merge_inchannel * aspp_dim, aspp_dim, kernel_size=1, bias=use_bias)]
-        if use_batchnorm:
-            layers.append(norm_fn(aspp_dim))
-        layers.append(nn.ReLU(inplace=True))
-        self.merge_conv = nn.Sequential(*layers)
+        self.merge_conv = nn.Sequential(
+            nn.Conv2d(merge_inchannel * aspp_dim, aspp_dim, kernel_size=1, bias=use_bias),
+            norm_fn(aspp_dim),
+            nn.ReLU(inplace=True),
+        )
         self.dropout = nn.Dropout(p=0.1)
 
         if self.use_batchnorm and not self.batchnorm_trainable:
