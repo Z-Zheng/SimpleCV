@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 
+GlobalAvgPool2D = nn.AdaptiveAvgPool2d(1)
 
-class GlobalAvgPool2D(nn.Module):
+
+class GlobalAvgPool2DBaseline(nn.Module):
     def __init__(self):
-        super(GlobalAvgPool2D, self).__init__()
+        super(GlobalAvgPool2DBaseline, self).__init__()
 
     def forward(self, x):
         x_pool = torch.mean(x.view(x.size(0), x.size(1), x.size(2) * x.size(3)), dim=2)
