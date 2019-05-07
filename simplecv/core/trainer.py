@@ -42,7 +42,6 @@ class Launcher(object):
         else:
             self._logger.off()
         self._ckpt = CheckPoint(self)
-        self.init()
 
     @property
     def model(self):
@@ -137,7 +136,7 @@ class Launcher(object):
                     **kwargs):
         num_iters = kwargs.get('num_iters', -1)
         forward_times = kwargs.get('forward_times', 1)
-        eval_per_epoch = kwargs.get('eval_per_epoch', True)
+        eval_per_epoch = kwargs.get('eval_per_epoch', False)
         tensorboard_interval_step = kwargs.get('tensorboard_interval_step', 100)
         log_interval_step = kwargs.get('log_interval_step', 1)
         distributed = kwargs.get('distributed', False)
@@ -211,6 +210,8 @@ class Launcher(object):
                 self._ckpt.save()
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
+        if config.get('resume_from_last', True):
+            self.init()
         self.model.train()
         forward_times = config['forward_times'] if 'forward_times' in config else 1
 
@@ -248,13 +249,17 @@ class Launcher(object):
         os.makedirs(self._model_dir, exist_ok=True)
 
     def evaluate(self, data_loader):
+        self.init()
+        self._evaluate_fn(data_loader)
+
+    def _evaluate_fn(self, data_loader):
         raise NotImplementedError
 
     def backward(self, total_loss, optimizer, **kwargs):
         total_loss.backward()
 
     def override_evaluate(self, fn):
-        self.evaluate = types.MethodType(fn, self)
+        self._evaluate_fn = types.MethodType(fn, self)
 
     def override_backward(self, fn):
         self.backward = types.MethodType(fn, self)
