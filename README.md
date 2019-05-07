@@ -28,11 +28,11 @@ pip install git+https://github.com/Z-Zheng/simplecv.git
 - opencv
 
 ## Citing SimpleCV
-If you use SimpleCV in your research, please use the following BibTeX entry.
+If you use simplecv in your research, please use the following BibTeX entry.
 ```
-@misc{SimpleCV2018,
+@misc{simplecv2018,
   author =       {Zhuo Zheng},
-  title =        {SimpleCV},
+  title =        {simplecv},
   howpublished = {\url{https://github.com/Z-Zheng/simplecv}},
   year =         {2018}
 }
