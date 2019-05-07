@@ -42,6 +42,7 @@ class Launcher(object):
         else:
             self._logger.off()
         self._ckpt = CheckPoint(self)
+        self._training = False
 
     @property
     def model(self):
@@ -210,6 +211,7 @@ class Launcher(object):
                 self._ckpt.save()
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
+        self._training = True
         if config.get('resume_from_last', True):
             self.init()
         self.model.train()
@@ -249,6 +251,11 @@ class Launcher(object):
         os.makedirs(self._model_dir, exist_ok=True)
 
     def evaluate(self, data_loader):
+        if not self._training:
+            self.init()
+        self._evaluate_fn(data_loader)
+
+    def evaluate_last_ckpt(self, data_loader):
         self.init()
         self._evaluate_fn(data_loader)
 
