@@ -11,10 +11,10 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 - 2018/12/20 support SE Block
 ## Features
 1. Focus on your research rather than training template codes
-2. High performance parallel training using Pytorch 1.0
+2. High performance parallel training using Pytorch 1.1
 3. Dynamic module registration mechanism makes you customize components on the fly
-4. Support tensorboard for visualization
-5. Support stable distribute training and Sync BN by NVIDIA/apex
+4. Support mixed precision training, significantly reducing GPU memory usage with similar performance
+5. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
 --------------
 ## Installation
 
@@ -194,6 +194,6 @@ todo
 - [ ] add complete demos of segmentation, detection
 
 ### Recent plans
-
 - [ ] add search lr function such as the one in Fast.ai
 - [ ] change checkpoint format from model-step.pth to model-step-epoch.pth
+- [ ] For 2019 IEEE GRSS Data Fusion Contest, Track1: Single-view semantic 3D challenge, 2nd solution code (Pop-Net) will be released!
