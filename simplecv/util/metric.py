@@ -12,7 +12,8 @@ def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=
 
     """
     size = [num_classes + 1, num_classes + 1] if num_classes is not None else None
-
+    y_true = y_true.float()
+    y_pred = y_pred.float()
     if size is None:
         cm = torch.sparse_coo_tensor(indices=torch.stack([y_true, y_pred], dim=0), values=torch.ones_like(y_pred))
     else:
@@ -22,13 +23,13 @@ def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=
 
 
 def th_overall_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor):
-    return (y_true.int() == y_pred.int()).sum().float() / y_true.numel()
+    return (y_true.int() == y_pred.int()).sum().float() / float(y_true.numel())
 
 
 def th_average_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
     cm_th = th_confusion_matrix(y_true, y_pred, num_classes)
     cm_th = cm_th.float()
-    return torch.diag(cm_th / cm_th.sum(dim=0)[None, :]).mean()
+    return torch.diag(cm_th / (cm_th.sum(dim=0)[None, :]+1e-6)).mean()
 
 
 def th_cohen_kappa_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
