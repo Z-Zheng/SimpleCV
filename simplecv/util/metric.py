@@ -22,7 +22,7 @@ def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=
 
 
 def th_overall_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor):
-    return (y_true == y_pred).sum().float() / y_true.numel()
+    return (y_true.int() == y_pred.int()).sum().float() / y_true.numel()
 
 
 def th_average_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
