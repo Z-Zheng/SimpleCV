@@ -50,6 +50,7 @@ class AtrousSpatialPyramidPool(nn.Module):
             self.aspp_convs.append(
                 nn.Sequential(
                     conv_op_intance,
+                    nn.BatchNorm2d(aspp_dim) if use_batchnorm else nn.Identity(),
                     nn.ReLU(inplace=True)
                 )
             )
@@ -58,6 +59,7 @@ class AtrousSpatialPyramidPool(nn.Module):
             self.image_pool = nn.Sequential(
                 GlobalAvgPool2D(),
                 nn.Conv2d(in_channel, aspp_dim, kernel_size=1, bias=use_bias),
+                nn.BatchNorm2d(aspp_dim) if use_batchnorm else nn.Identity(),
                 nn.ReLU(inplace=True)
             )
         merge_inchannel = 1 + len(atrous_rates) + int(add_image_level)
@@ -67,7 +69,7 @@ class AtrousSpatialPyramidPool(nn.Module):
             norm_fn(aspp_dim),
             nn.ReLU(inplace=True),
         )
-        self.dropout = nn.Dropout(p=0.1)
+        # self.dropout = nn.Dropout(p=0.1)
 
         if self.use_batchnorm and not self.batchnorm_trainable:
             param_util.freeze_modules(self, nn.BatchNorm2d)
@@ -94,6 +96,6 @@ class AtrousSpatialPyramidPool(nn.Module):
         concat_logits = torch.cat(branch_logits, dim=1)
         concat_logits = self.merge_conv(concat_logits)
 
-        concat_logits = self.dropout(concat_logits)
+        # concat_logits = self.dropout(concat_logits)
 
         return concat_logits
