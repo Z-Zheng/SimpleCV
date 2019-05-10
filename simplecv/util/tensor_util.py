@@ -3,7 +3,9 @@ import torch
 
 
 def to_tensor(blob):
-    if isinstance(blob, np.ndarray) or isinstance(blob, int) or isinstance(blob, float):
+    if isinstance(blob, np.ndarray):
+        return torch.from_numpy(blob)
+    if isinstance(blob, int) or isinstance(blob, float):
         return torch.Tensor(blob)
 
     if isinstance(blob, dict):
@@ -46,4 +48,5 @@ def to_device(blob, device):
         else:
             ts = tuple([to_device(e, device) for e in blob])
         return ts
-    raise ValueError('type of {} is not support for to_device'.format(type(blob)))
+    return blob
+    # raise ValueError('type of {} is not support for to_device'.format(type(blob)))
