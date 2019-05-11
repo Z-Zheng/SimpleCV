@@ -4,11 +4,14 @@ class AttrDict(dict):
         self.update(kwargs)
 
     def __setitem__(self, key: str, value):
-        if isinstance(value, dict):
-            value = AttrDict(**value)
         super(AttrDict, self).__setitem__(key, value)
         super(AttrDict, self).__setattr__(key, value)
 
-    def update(self, config):
+    def update(self, config: dict):
         for k, v in config.items():
-            self[k] = v
+            if k not in self:
+                self[k] = AttrDict()
+            if isinstance(v, dict):
+                self[k].update(v)
+            else:
+                self[k] = v
