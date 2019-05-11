@@ -19,7 +19,7 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ## Installation
 
 ```bash
-pip install --upgrade git+https://github.com/Z-Zheng/simplecv.git
+pip install --upgrade git+https://github.com/Z-Zheng/SimpleCV.git
 ```
 
 #### Requirements:
@@ -32,8 +32,8 @@ If you use simplecv in your research, please use the following BibTeX entry.
 ```
 @misc{simplecv2018,
   author =       {Zhuo Zheng},
-  title =        {simplecv},
-  howpublished = {\url{https://github.com/Z-Zheng/simplecv}},
+  title =        {SimpleCV},
+  howpublished = {\url{https://github.com/Z-Zheng/SimpleCV}},
   year =         {2018}
 }
 ```
