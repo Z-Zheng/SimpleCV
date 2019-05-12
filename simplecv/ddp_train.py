@@ -58,6 +58,7 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
         for f in after_construct_launcher_callbacks:
             f(tl)
 
+    tl.logger.info('sync bn: {}'.format('True' if cfg['train'].get('sync_bn', False) else 'False'))
     tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
 
 
