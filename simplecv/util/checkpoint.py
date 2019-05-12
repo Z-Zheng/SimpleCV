@@ -59,7 +59,7 @@ class CheckPoint(object):
 
     @staticmethod
     def load(filepath):
-        ckpt = torch.load(filepath)
+        ckpt = torch.load(filepath, map_location=torch.device("cpu"))
 
         return ckpt
 
