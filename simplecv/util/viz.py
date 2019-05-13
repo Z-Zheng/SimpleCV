@@ -125,3 +125,26 @@ def plot_bbox(img, bboxes, scores=None, labels=None, thresh=0.5,
                     bbox=dict(facecolor=colors[cls_id], alpha=0.5),
                     fontsize=12, color='white')
     return ax
+
+
+def plot_mask(img, masks, alpha=0.5):
+    """Visualize segmentation mask.
+    Parameters
+    ----------
+    img : numpy.ndarray
+        Image with shape `H, W, 3`.
+    masks : numpy.ndarray
+        Binary images with shape `N, H, W`.
+    alpha : float, optional, default 0.5
+        Transparency of plotted mask
+    Returns
+    -------
+    numpy.ndarray
+        The image plotted with segmentation masks
+    """
+    rs = np.random.RandomState(567)
+    for mask in masks:
+        color = rs.random_sample(3) * 255
+        mask = np.repeat((mask > 0)[:, :, np.newaxis], repeats=3, axis=2)
+        img = np.where(mask, img * (1 - alpha) + color * alpha, img)
+    return img.astype('uint8')
