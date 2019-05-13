@@ -28,6 +28,8 @@ def to_tensor(blob):
 
 
 def to_device(blob, device):
+    if hasattr(blob, 'to'):
+        return blob.to(device)
     if isinstance(blob, torch.Tensor):
         return blob.to(device)
 
