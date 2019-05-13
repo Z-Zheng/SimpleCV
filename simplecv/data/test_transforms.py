@@ -96,14 +96,18 @@ class Scale(TestTransform):
     def __init__(self, scale_factor):
         super(Scale, self).__init__()
         self.scale_factor = scale_factor
+        self.input_shape = None
 
     def transform(self, inputs):
+        self.input_shape = inputs.shape
         transformed_inputs = F.interpolate(inputs, scale_factor=self.scale_factor, mode='bilinear', align_corners=True)
         return transformed_inputs
 
     def inv_transform(self, transformed_inputs):
-        inputs = F.interpolate(transformed_inputs, scale_factor=1.0 / self.scale_factor, mode='bilinear',
+        size = (self.input_shape[2], self.input_shape[3])
+        inputs = F.interpolate(transformed_inputs, size=size, mode='bilinear',
                                align_corners=True)
+
         return inputs
 
 
@@ -119,3 +123,5 @@ if __name__ == '__main__':
 
     for scale_factor in np.linspace(0.25, 2.0, num=int((2.0 - 0.25) / 0.25 + 1)):
         TestTransform.unit_test(Scale(scale_factor=float(scale_factor)))
+
+    TestTransform.unit_test(Scale(scale_factor=float(0.49)))
