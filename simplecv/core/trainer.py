@@ -250,16 +250,16 @@ class Launcher(object):
     def init_model_dir(self):
         os.makedirs(self._model_dir, exist_ok=True)
 
-    def evaluate(self, data_loader):
+    def evaluate(self, data_loader, config=None):
         if not self._training:
             self.init()
-        self._evaluate_fn(data_loader)
+        self._evaluate_fn(data_loader, config)
 
     def evaluate_last_ckpt(self, data_loader):
         self.init()
         self._evaluate_fn(data_loader)
 
-    def _evaluate_fn(self, data_loader):
+    def _evaluate_fn(self, data_loader, config=None):
         raise NotImplementedError
 
     def backward(self, total_loss, optimizer, **kwargs):
