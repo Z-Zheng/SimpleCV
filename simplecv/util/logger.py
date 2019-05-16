@@ -3,6 +3,8 @@ import time
 import tensorboardX
 import numpy as np
 from collections import deque
+import os
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -13,15 +15,34 @@ def get_logger(name=__name__):
     return logger
 
 
+def get_console_file_logger(name, level, logdir):
+    logger = logging.getLogger(name)
+    logger.setLevel(level=level)
+    BASIC_FORMAT = "%(asctime)s, %(levelname)s:%(name)s:%(message)s"
+    DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+    formatter = logging.Formatter(BASIC_FORMAT, DATE_FORMAT)
+    chlr = logging.StreamHandler()
+    chlr.setFormatter(formatter)
+    chlr.setLevel(level=level)
+
+    fhlr = logging.FileHandler(os.path.join(logdir, str(time.time()) + '.log'))
+    fhlr.setFormatter(formatter)
+    logger.addHandler(chlr)
+    logger.addHandler(fhlr)
+
+    return logger
+
+
 class Logger(object):
     def __init__(self,
                  name,
                  level=logging.INFO,
                  use_tensorboard=False,
                  tensorboard_logdir=None):
-        self._logger = logging.getLogger(name)
-        self._level = level
-        self._logger.setLevel(level)
+        # self._logger = logging.getLogger(name)
+        # self._level = level
+        # self._logger.setLevel(level)
+        self._logger = get_console_file_logger(name, level, tensorboard_logdir)
         self.use_tensorboard = use_tensorboard
         if self.use_tensorboard and tensorboard_logdir is None:
             raise ValueError('logdir is not None if you use tensorboard')
