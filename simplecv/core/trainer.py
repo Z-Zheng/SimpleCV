@@ -13,16 +13,7 @@ import types
 import torch
 from torch.nn.utils import clip_grad
 from simplecv.core import default_backward
-from simplecv.util.dist import reduce_loss_dict
-
-
-def get_rank():
-    try:
-        if not dist.is_initialized():
-            return 0
-    except AttributeError:
-        return 0
-    return dist.get_rank()
+from simplecv.util.dist import reduce_loss_dict, get_rank
 
 
 class Launcher(object):
@@ -66,7 +57,14 @@ class Launcher(object):
 
     @property
     def logger(self):
-        return self._logger
+        class _FakeLogger(object):
+            def info(self, value):
+                pass
+
+        if self._master:
+            return self._logger
+        else:
+            return _FakeLogger()
 
     def compute_loss_gradient(self, data):
         """
