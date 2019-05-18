@@ -218,8 +218,8 @@ class Launcher(object):
         forward_times = config['forward_times'] if 'forward_times' in config else 1
 
         if self._master:
-            param_util.trainable_parameters(self.model)
-            param_util.count_model_parameters(self.model)
+            param_util.trainable_parameters(self.model, self._logger)
+            param_util.count_model_parameters(self.model, self._logger)
             self._logger.equation('batch_size_per_gpu', train_data_loader.batch_sampler.batch_size)
             self._logger.forward_times(forward_times)
         if 'num_epochs' in config and 'num_iters' not in config:
