@@ -38,11 +38,9 @@ class Launcher(object):
         self._master = get_rank() == 0
         if self._master:
             self._logger = Logger('SimpleCV', use_tensorboard=self._master, tensorboard_logdir=model_dir)
-        self._device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        if self._master:
             self._logger.on()
-        else:
-            self._logger.off()
+        self._device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
         self._ckpt = CheckPoint(self)
         self._training = False
 
