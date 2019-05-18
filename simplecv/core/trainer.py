@@ -13,6 +13,7 @@ import types
 import torch
 from torch.nn.utils import clip_grad
 from simplecv.core import default_backward
+from simplecv.util.dist import reduce_loss_dict
 
 
 def get_rank():
@@ -99,6 +100,7 @@ class Launcher(object):
 
             # log losses
             with torch.no_grad():
+                losses = reduce_loss_dict(losses)
                 for name, value in losses.items():
                     if name not in loss_dict:
                         loss_dict[name] = 0.0
@@ -280,5 +282,5 @@ def scale_dict(input_dict, scale):
 
 def average_dict(input_dict):
     for k, v in input_dict.items():
-        input_dict[k] = v.mean()
+        input_dict[k] = v.mean() if v.ndimension() != 0 else v
     return input_dict

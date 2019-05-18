@@ -10,7 +10,7 @@ config = dict(
                     include_conv5=True,
                     batchnorm_trainable=False,
                     pretrained=True,
-                    freeze_at=0,
+                    freeze_at=2,
                     # 8, 16 or 32
                     output_stride=32,
                     with_cp=(False, False, False, False),
