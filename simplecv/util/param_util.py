@@ -7,22 +7,22 @@ import torch
 logger = get_logger(__name__)
 
 
-def trainable_parameters(module):
+def trainable_parameters(module, _default_logger=logger):
     ret = []
     total = 0
     for idx, p in enumerate(module.parameters()):
         if p.requires_grad:
             ret.append(p)
         total = idx + 1
-    logger.info('[trainable params] {}/{}'.format(len(ret), total))
+    _default_logger.info('[trainable params] {}/{}'.format(len(ret), total))
     return ret
 
 
-def count_model_parameters(module):
+def count_model_parameters(module, _default_logger=logger):
     cnt = 0
     for p in module.parameters():
         cnt += reduce(lambda x, y: x * y, list(p.shape))
-    logger.info('#params: {}, {} M'.format(cnt, round(cnt / float(1e6), 3)))
+    _default_logger.info('#params: {}, {} M'.format(cnt, round(cnt / float(1e6), 3)))
 
     return cnt
 

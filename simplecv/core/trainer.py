@@ -28,6 +28,7 @@ class Launcher(object):
         self._lr_schedule = lr_schedule
         self._master = get_rank() == 0
         if self._master:
+            self.init_model_dir()
             self._logger = Logger('SimpleCV', use_tensorboard=self._master, tensorboard_logdir=model_dir)
             self._logger.on()
         self._device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
