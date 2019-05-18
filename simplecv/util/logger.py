@@ -16,8 +16,9 @@ def get_logger(name=__name__):
 
 
 def get_console_file_logger(name, level, logdir):
-    logger = logging.getLogger(name)
+    logger = logging.Logger(name)
     logger.setLevel(level=level)
+    logger.handlers = []
     BASIC_FORMAT = "%(asctime)s, %(levelname)s:%(name)s:%(message)s"
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
     formatter = logging.Formatter(BASIC_FORMAT, DATE_FORMAT)
