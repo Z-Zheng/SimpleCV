@@ -40,7 +40,7 @@ class Logger(object):
                  use_tensorboard=False,
                  tensorboard_logdir=None):
         # self._logger = logging.getLogger(name)
-        # self._level = level
+        self._level = level
         # self._logger.setLevel(level)
         self._logger = get_console_file_logger(name, level, tensorboard_logdir)
         self.use_tensorboard = use_tensorboard
