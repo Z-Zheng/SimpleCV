@@ -27,11 +27,11 @@ def to_tensor(blob):
         return ts
 
 
-def to_device(blob, device):
+def to_device(blob, device, *args, **kwargs):
     if hasattr(blob, 'to'):
-        return blob.to(device)
+        return blob.to(device, *args, **kwargs)
     if isinstance(blob, torch.Tensor):
-        return blob.to(device)
+        return blob.to(device, *args, **kwargs)
 
     if isinstance(blob, dict):
         ts = {}
