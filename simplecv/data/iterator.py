@@ -56,6 +56,7 @@ class Iterator(object):
 
 class Prefetcher(object):
     def __init__(self, dataloader):
+        self._device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self._dataloader = dataloader
         self.loader = iter(dataloader)
         self.stream = torch.cuda.Stream()
@@ -76,7 +77,7 @@ class Prefetcher(object):
             raise StopIteration
 
         with torch.cuda.stream(self.stream):
-            self.data = tensor_util.to_device(self.data, torch.device('cuda'), non_blocking=True)
+            self.data = tensor_util.to_device(self.data, self._device, non_blocking=True)
 
     def reset(self):
         self.loader = iter(self._dataloader)
