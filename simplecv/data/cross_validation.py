@@ -11,6 +11,13 @@ class CrossValSamplerGenerator(object):
                  dataset: Dataset,
                  distributed=True,
                  seed=2333):
+        """
+
+        Args:
+            dataset: a instance of torch.utils.data.dataset.Dataset
+            distributed: whether to use distributed random sampler
+            seed: random seed for torch.randperm
+        """
         self.num_samples = len(dataset)
         self.seed = seed
         self.distributed = distributed
