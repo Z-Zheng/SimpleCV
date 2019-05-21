@@ -3,6 +3,13 @@ from torch.utils.data.distributed import DistributedSampler
 from simplecv.util import tensor_util
 
 
+def get_iterator(type_name):
+    if type_name in ITERATOR_TYPE:
+        return ITERATOR_TYPE[type_name]
+    else:
+        raise KeyError('{} is not support.'.format(type_name))
+
+
 class Iterator(object):
     def __init__(self, data_loader):
         self._data_loader = data_loader
@@ -108,3 +115,9 @@ class PrefetchedIterator(Iterator):
     def reset(self):
         self._prefetcher.reset()
         self._iterator = iter(self._data_loader)
+
+
+ITERATOR_TYPE = dict(
+    normal=Iterator,
+    prefetched=PrefetchedIterator,
+)
