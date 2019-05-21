@@ -3,6 +3,7 @@ from functools import reduce
 from collections import OrderedDict
 import numpy as np
 import torch
+import torch.nn as nn
 
 logger = get_logger(__name__)
 
@@ -127,3 +128,17 @@ def count_model_flops(model, x):
 
     logger.info("# Mult-Adds: {0:,.2f} GFlops".format(total_macs / 1000000000))
     return total_macs
+
+
+def copy_conv_parameters(src: nn.Conv2d, dst: nn.Conv2d):
+    dst.weight.data = src.weight.data.clone().detach()
+    if dst.bias is not None:
+        dst.bias.data = src.bias.data.clone().detach()
+
+    for name, v in src.__dict__.items():
+        if name.startswith('_'):
+            continue
+        if name == 'kernel_size':
+            assert dst.__dict__[name] == src.__dict__[name]
+
+        dst.__dict__[name] = src.__dict__[name]

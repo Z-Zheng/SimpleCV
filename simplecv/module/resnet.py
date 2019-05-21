@@ -180,9 +180,9 @@ def plugin_context_block2d(module: nn.Module, ratio):
                                                  ratio=ratio,
                                                  stride=module.stride,
                                                  downsample=module.downsample)
-        module_output.conv1.weight.data = module.conv1.weight.data.clone().detach()
-        module_output.conv2.weight.data = module.conv2.weight.data.clone().detach()
-        module_output.conv3.weight.data = module.conv3.weight.data.clone().detach()
+        param_util.copy_conv_parameters(module.conv1, module_output.conv1)
+        param_util.copy_conv_parameters(module.conv2, module_output.conv2)
+        param_util.copy_conv_parameters(module.conv3, module_output.conv3)
 
     for name, sub_module in module.named_children():
         module_output.add_module(name, plugin_context_block2d(sub_module, ratio))
