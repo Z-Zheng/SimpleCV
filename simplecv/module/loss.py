@@ -16,8 +16,8 @@ def dice_loss(y_pred: torch.Tensor, y_true: torch.Tensor, smooth_value=1.0, igno
     y_true = y_true.view(-1)
     mask = y_true == ignore_index
     valid = 1 - mask
-    y_true = y_true.masked_select(valid)
-    y_pred = y_pred.masked_select(valid)
+    y_true = y_true.masked_select(valid).float()
+    y_pred = y_pred.masked_select(valid).float()
     return 1. - dice_coeff(y_pred, y_true, smooth_value)
 
 
