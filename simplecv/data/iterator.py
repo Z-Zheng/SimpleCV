@@ -88,6 +88,7 @@ class Prefetcher(object):
 
     def reset(self):
         self.loader = iter(self._dataloader)
+        self.preload()
 
 
 class PrefetchedIterator(Iterator):
