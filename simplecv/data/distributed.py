@@ -12,7 +12,7 @@ class StepDistributedSampler(DistributedSampler):
         self.step = step
 
     def __iter__(self):
-        # deterministically shuffle based on epoch
+        # deterministically shuffle based on step
         g = torch.Generator()
         g.manual_seed(self.step)
         indices = torch.randperm(len(self.dataset), generator=g).tolist()
@@ -54,3 +54,6 @@ class StepDistributedRandomSubsetSampler(StepDistributedSampler):
 
     def __len__(self):
         return self.num_samples
+
+    def set_step(self, step):
+        self.step = step
