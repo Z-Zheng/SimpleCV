@@ -11,14 +11,14 @@ def dice_coeff(y_pred, y_true, smooth_value=1.0):
     return (2 * inter + smooth_value) / z
 
 
-def dice_loss(y_pred: torch.Tensor, y_true: torch.Tensor, smooth_value=1.0, ignore_index=255):
+def dice_loss_with_logits(y_pred: torch.Tensor, y_true: torch.Tensor, smooth_value=1.0, ignore_index=255):
     y_pred = y_pred.view(-1)
     y_true = y_true.view(-1)
     mask = y_true == ignore_index
     valid = 1 - mask
     y_true = y_true.masked_select(valid).float()
     y_pred = y_pred.masked_select(valid).float()
-    return 1. - dice_coeff(y_pred, y_true, smooth_value)
+    return 1. - dice_coeff(y_pred.sigmoid(), y_true, smooth_value)
 
 
 class DiceLoss(nn.Module):
