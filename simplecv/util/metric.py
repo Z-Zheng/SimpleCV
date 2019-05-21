@@ -29,7 +29,7 @@ def th_overall_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor):
 def th_average_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
     cm_th = th_confusion_matrix(y_true, y_pred, num_classes)
     cm_th = cm_th.float()
-    return torch.diag(cm_th / (cm_th.sum(dim=0)[None, :]+1e-6)).mean()
+    return torch.diag(cm_th / (cm_th.sum(dim=0)[None, :] + 1e-6)).mean()
 
 
 def th_cohen_kappa_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
