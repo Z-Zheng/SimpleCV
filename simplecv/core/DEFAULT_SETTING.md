@@ -20,5 +20,7 @@ train=dict(
         resume_from_last=True,
         # when use ddp_train.py, whether to use official nn.SyncBatchNorm.
         sync_bn=False,
+        # `normal` or `prefetched`
+        iterator_type='normal'
     )
 ```

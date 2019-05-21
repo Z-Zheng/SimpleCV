@@ -2,7 +2,7 @@ import os
 import torch.distributed as dist
 from simplecv.util.logger import Logger
 from simplecv.util.checkpoint import CheckPoint
-from simplecv.data.iterator import Iterator
+from simplecv.data.iterator import get_iterator
 from simplecv.util import tensor_util
 import time
 from torch.optim.lr_scheduler import _LRScheduler
@@ -143,8 +143,10 @@ class Launcher(object):
         distributed = kwargs.get('distributed', False)
         summary_grads = kwargs.get('summary_grads', False)
         summary_weights = kwargs.get('summary_weights', False)
+        iterator_type = kwargs.get('iterator_type', 'normal')
 
-        iterator = Iterator(train_data_loader)
+        iterator = get_iterator(iterator_type)(train_data_loader)
+
         call_backs = [self._ckpt.save]
         if eval_per_epoch:
             call_backs.append(functools.partial(self.evaluate, test_data_loader))
@@ -181,7 +183,9 @@ class Launcher(object):
         tensorboard_interval_step = kwargs.get('tensorboard_interval_step', 100)
         log_interval_step = kwargs.get('log_interval_step', 1)
 
-        iterator = Iterator(train_data_loader)
+        iterator_type = kwargs.get('iterator_type', 'normal')
+
+        iterator = get_iterator(iterator_type)(train_data_loader)
         for i in range(num_epochs):
             self._model.train()
             if kwargs.get('distributed', False):
