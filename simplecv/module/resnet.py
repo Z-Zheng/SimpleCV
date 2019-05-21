@@ -9,9 +9,11 @@ from torchvision.models.resnet import resnet101
 from simplecv.interface import CVModule
 from simplecv import registry
 from simplecv.util import param_util
+from simplecv.module import context_block
 
 __all__ = ['make_layer',
-           'ResNetEncoder']
+           'ResNetEncoder',
+           'plugin_context_block2d']
 
 registry.MODEL.register('resnet18', resnet18)
 registry.MODEL.register('resnet34', resnet34)
@@ -127,7 +129,7 @@ class ResNetEncoder(CVModule):
             resnet_type='resnet50',
             include_conv5=True,
             batchnorm_trainable=True,
-            pretrained=True,
+            pretrained=False,
             freeze_at=0,
             # 16 or 32
             output_stride=32,
@@ -150,3 +152,39 @@ class ResNetEncoder(CVModule):
                 if m.kernel_size == (3, 3):
                     m.dilation = (dilate, dilate)
                     m.padding = (dilate, dilate)
+
+
+def plugin_context_block2d(module: nn.Module, ratio):
+    """
+
+    Args:
+        module: (nn.Module): containing module
+        ratio: (float) reduction ratio
+
+    Returns:
+        The original module with the converted `context_block.Bottleneck` layer
+
+    Example::
+
+            >>> # r16 ct c3-c5
+            >>> m = ResNetEncoder({})
+            >>> m.resnet.layer2 = plugin_context_block2d(m.resnet.layer2, 1 / 16.)
+            >>> m.resnet.layer3 = plugin_context_block2d(m.resnet.layer3, 1 / 16.)
+            >>> m.resnet.layer4 = plugin_context_block2d(m.resnet.layer4, 1 / 16.)
+    """
+    classname = module.__class__.__name__
+    module_output = module
+    if classname.find('Bottleneck') != -1:
+        module_output = context_block.Bottleneck(module.conv1.in_channels,
+                                                 module.conv1.out_channels,
+                                                 ratio=ratio,
+                                                 stride=module.stride,
+                                                 downsample=module.downsample)
+        module_output.conv1.weight.data = module.conv1.weight.data.clone().detach()
+        module_output.conv2.weight.data = module.conv2.weight.data.clone().detach()
+        module_output.conv3.weight.data = module.conv3.weight.data.clone().detach()
+
+    for name, sub_module in module.named_children():
+        module_output.add_module(name, plugin_context_block2d(sub_module, ratio))
+    del module
+    return module_output
