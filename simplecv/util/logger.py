@@ -48,7 +48,7 @@ class Logger(object):
         if self.use_tensorboard and tensorboard_logdir is None:
             raise ValueError('logdir is not None if you use tensorboard')
         if self.use_tensorboard:
-            self.summary_w = tensorboardX.SummaryWriter(log_dir=tensorboard_logdir)
+            self.summary_w = tensorboardX.SummaryWriter(tensorboard_logdir)
         self.smoothvalues = dict()
 
     def create_or_get_smoothvalues(self, value_dict: dict):
