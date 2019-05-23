@@ -142,7 +142,7 @@ class ResNetEncoder(CVModule):
 
     def train(self, mode=True):
         super(ResNetEncoder, self).train(mode)
-        self._freeze_stages()
+        self._freeze_at(self.config.freeze_at)
         if mode and not self.config.batchnorm_trainable:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
