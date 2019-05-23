@@ -3,6 +3,7 @@ from torch.utils.data.distributed import DistributedSampler
 from simplecv.util import tensor_util
 import warnings
 
+
 def get_iterator(type_name):
     if type_name in ITERATOR_TYPE:
         return ITERATOR_TYPE[type_name]
@@ -14,6 +15,7 @@ class Iterator(object):
     def __init__(self, data_loader):
         self._data_loader = data_loader
         self._iterator = iter(self._data_loader)
+        self._current_epoch = 0
 
     def next(self, forward_times=1, call_backs=None, is_master=True):
         data_list = []
@@ -22,9 +24,14 @@ class Iterator(object):
                 data = next(self._iterator)
             except StopIteration:
                 self.reset()
+                self._current_epoch += 1
                 if is_master:
                     if call_backs is not None:
                         for f in call_backs:
+                            if isinstance(f, tuple):
+                                f, call_back_interval = f
+                                if self._current_epoch % call_back_interval != 0:
+                                    continue
                             f()
                 data = next(self._iterator)
 
@@ -67,6 +74,7 @@ class Iterator(object):
                 self._data_loader.sampler.set_epoch(seed)
         else:
             warnings.warn('batch_sampler and sampler are not found in data_loader, therefore no shuffle here.')
+
 
 class Prefetcher(object):
     def __init__(self, dataloader):

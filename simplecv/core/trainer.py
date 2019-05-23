@@ -144,10 +144,11 @@ class Launcher(object):
         summary_grads = kwargs.get('summary_grads', False)
         summary_weights = kwargs.get('summary_weights', False)
         iterator_type = kwargs.get('iterator_type', 'normal')
+        save_ckpt_interval_epoch = kwargs.get('save_ckpt_interval_epoch', 1)
 
         iterator = get_iterator(iterator_type)(train_data_loader)
 
-        call_backs = [self._ckpt.save]
+        call_backs = [(self._ckpt.save, save_ckpt_interval_epoch)]
         if eval_per_epoch:
             call_backs.append(functools.partial(self.evaluate, test_data_loader))
         while self._ckpt.global_step < num_iters:

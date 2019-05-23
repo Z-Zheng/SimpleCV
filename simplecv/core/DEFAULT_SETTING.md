@@ -21,6 +21,7 @@ train=dict(
         # when use ddp_train.py, whether to use official nn.SyncBatchNorm.
         sync_bn=False,
         # `normal` or `prefetched`
-        iterator_type='normal'
+        iterator_type='normal',
+        save_ckpt_interval_epoch=1,
     )
 ```
