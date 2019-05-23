@@ -43,6 +43,13 @@ def freeze_modules(module, specific_class=None):
         freeze_params(m)
 
 
+def freeze_bn(module):
+    for m in module.modules():
+        if isinstance(m, nn.modules.batchnorm._BatchNorm):
+            freeze_params(m)
+            m.eval()
+
+
 def count_model_flops(model, x):
     """ count the macs of model
     This implementation is modified version of

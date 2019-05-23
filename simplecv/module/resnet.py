@@ -140,6 +140,15 @@ class ResNetEncoder(CVModule):
             with_cp=(False, False, False, False),
         ))
 
+    def train(self, mode=True):
+        super(ResNetEncoder, self).train(mode)
+        self._freeze_stages()
+        if mode and not self.config.batchnorm_trainable:
+            for m in self.modules():
+                # trick: eval have effect on BatchNorm only
+                if isinstance(m, nn.modules.batchnorm._BatchNorm):
+                    m.eval()
+
     def _nostride_dilate(self, m, dilate):
         # ref:
         # https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/1235deb1d68a8f3ef87d639b95b2b8e3607eea4c/models/models.py#L256
