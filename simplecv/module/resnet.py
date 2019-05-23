@@ -1,10 +1,12 @@
 import torch.nn as nn
 from torch.utils import checkpoint as cp
 from functools import partial
-from torchvision.models.resnet import resnet18
-from torchvision.models.resnet import resnet34
-from torchvision.models.resnet import resnet50
-from torchvision.models.resnet import resnet101
+from simplecv.module._resnets import resnet18
+from simplecv.module._resnets import resnet34
+from simplecv.module._resnets import resnet50
+from simplecv.module._resnets import resnet101
+from simplecv.module._resnets import resnext50_32x4d
+from simplecv.module._resnets import resnext101_32x8d
 
 from simplecv.interface import CVModule
 from simplecv import registry
@@ -19,6 +21,8 @@ registry.MODEL.register('resnet18', resnet18)
 registry.MODEL.register('resnet34', resnet34)
 registry.MODEL.register('resnet50', resnet50)
 registry.MODEL.register('resnet101', resnet101)
+registry.MODEL.register('resnext50_32x4d', resnext50_32x4d)
+registry.MODEL.register('resnext101_32x8d', resnext101_32x8d)
 
 
 def make_layer(block, in_channel, basic_out_channel, blocks, stride=1, dilation=1):
