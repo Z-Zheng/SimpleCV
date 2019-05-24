@@ -8,7 +8,6 @@ from simplecv.opt.optimizer import make_optimizer
 from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
-from simplecv.util import param_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int)

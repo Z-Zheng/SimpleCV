@@ -1,19 +1,20 @@
 import os
-import torch.distributed as dist
 from simplecv.util.logger import Logger
 from simplecv.util.checkpoint import CheckPoint
 from simplecv.data.iterator import get_iterator
 from simplecv.util import tensor_util
 import time
 from torch.optim.lr_scheduler import _LRScheduler
-from simplecv.opt.learning_rate import LearningRateBase
+from simplecv.interface.learning_rate import LearningRateBase
 from simplecv.util import param_util
 import functools
 import types
 import torch
 from torch.nn.utils import clip_grad
-from simplecv.core import default_backward
 from simplecv.util.dist import reduce_loss_dict, get_rank
+
+__all__ = ['Launcher',
+           'LauncherPlugin']
 
 
 class Launcher(object):
@@ -288,6 +289,20 @@ class Launcher(object):
             getattr(self, plugin_name)(*args, **kwargs)
         else:
             raise ModuleNotFoundError('plugin: {} is not found.'.format(plugin_name))
+
+
+class LauncherPlugin(object):
+    def __init__(self, name):
+        self.plugin_name = name
+
+    def register(self, launcher: Launcher):
+        assert isinstance(launcher, Launcher)
+        if hasattr(launcher, self.plugin_name):
+            raise ValueError('plugin_name: {} has existed.'.format(self.plugin_name))
+        launcher.__setattr__(self.plugin_name, types.MethodType(self.function, launcher))
+
+    def function(self, launcher: Launcher):
+        raise NotImplementedError
 
 
 def scale_dict(input_dict, scale):

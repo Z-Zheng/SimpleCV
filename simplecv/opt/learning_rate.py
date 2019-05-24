@@ -1,6 +1,6 @@
 import numpy as np
 from simplecv.util import registry
-from simplecv.interface import LearningRateBase
+from simplecv.interface.learning_rate import LearningRateBase
 
 
 def make_learningrate(config):
