@@ -7,6 +7,7 @@
     - ResNet101
     - ResNeXt50_32x4d
     - ResNeXt101_32x8d
+    - [GC-ResNets](https://arxiv.org/abs/1904.11492) 
 - GlobalAvgPool2D
 - [AtrousSpatialPyramidPool](https://arxiv.org/abs/1802.02611)
 - SeparableConv2D

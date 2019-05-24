@@ -7,7 +7,7 @@ install_requires = [
 ]
 setup(
     name='simplecv',
-    version='0.2.1',
+    version='0.3.0',
     description='Simplify training, evaluation, prediction in Pytorch',
     keywords='computer vision using pytorch 1.0',
     packages=find_packages(),
@@ -22,7 +22,7 @@ setup(
     url='https://github.com/Z-Zheng/simplecv.git',
     author='Zhuo Zheng',
     author_email='zhuozheng_2017@163.com',
-    license='GPLv3',
+    license='MIT',
     setup_requires=[],
     tests_require=[],
     install_requires=install_requires,
