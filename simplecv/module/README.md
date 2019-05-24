@@ -1,6 +1,12 @@
 ## SimpleCV Preset Module
 
 - ResNets as Encoder (support os 8, 16, 32)
+    - ResNet18
+    - ResNet34
+    - ResNet50
+    - ResNet101
+    - ResNeXt50_32x4d
+    - ResNeXt101_32x8d
 - GlobalAvgPool2D
 - [AtrousSpatialPyramidPool](https://arxiv.org/abs/1802.02611)
 - SeparableConv2D

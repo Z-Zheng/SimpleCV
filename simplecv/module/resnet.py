@@ -66,6 +66,38 @@ class ResNetEncoder(CVModule):
             self.resnet.layer3.apply(partial(self._nostride_dilate, dilate=2))
             self.resnet.layer4.apply(partial(self._nostride_dilate, dilate=4))
 
+    @property
+    def layer1(self):
+        return self.resnet.layer1
+
+    @layer1.setter
+    def layer1(self, value):
+        self.resnet.layer1 = value
+
+    @property
+    def layer2(self):
+        return self.resnet.layer2
+
+    @layer2.setter
+    def layer2(self, value):
+        self.resnet.layer2 = value
+
+    @property
+    def layer3(self):
+        return self.resnet.layer3
+
+    @layer3.setter
+    def layer3(self, value):
+        self.resnet.layer3 = value
+
+    @property
+    def layer4(self):
+        return self.resnet.layer4
+
+    @layer4.setter
+    def layer4(self, value):
+        self.resnet.layer4 = value
+
     def _frozen_res_bn(self):
         param_util.freeze_modules(self.resnet, nn.BatchNorm2d)
         for m in self.resnet.modules():
