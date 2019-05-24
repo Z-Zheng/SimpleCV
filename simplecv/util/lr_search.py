@@ -1,5 +1,5 @@
 from simplecv.core import trainer
-from simplecv.interface import LauncherPlugin
+from simplecv.core.trainer import LauncherPlugin
 from simplecv.opt.learning_rate import set_lr
 
 

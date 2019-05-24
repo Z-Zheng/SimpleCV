@@ -1,6 +1,5 @@
 import argparse
 import torch
-import torch.nn as nn
 import torch.distributed as dist
 from simplecv.module.model_builder import make_model
 from simplecv.data.data_loader import make_dataloader
@@ -8,7 +7,6 @@ from simplecv.opt.optimizer import make_optimizer
 from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
-from simplecv.util import param_util
 from simplecv.core import default_backward
 
 try:

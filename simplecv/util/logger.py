@@ -1,5 +1,4 @@
 import logging
-import time
 import tensorboardX
 import numpy as np
 from collections import deque
