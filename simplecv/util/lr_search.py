@@ -17,11 +17,13 @@ class LinearSearch(LRSearchBase):
     def __init__(self,
                  data_loader,
                  loss_key='total_loss',
-                 lr_search_space=(0.001, 0.003, 0.006, 0.01, 0.03, 0.06, 0.1)
+                 lr_search_space=(0.001, 0.003, 0.006, 0.01, 0.03, 0.06, 0.1),
+                 search_iters=1000,
                  ):
         super(LinearSearch, self).__init__(data_loader, loss_key)
         self.search_space = lr_search_space
         self.search_results = list()
+        self.search_iters = search_iters
 
     def function(self, launcher: trainer.Launcher):
         launcher.logger.info('Start LR linear search...')
@@ -30,7 +32,7 @@ class LinearSearch(LRSearchBase):
         for lr in self.search_space:
             set_lr(launcher.optimizer, lr)
             # don't save ckpt during searching, simply set `save_ckpt_interval_epoch` to large enough value
-            train_config = dict(num_iters=1000, save_ckpt_interval_epoch=999999)
+            train_config = dict(num_iters=self.search_iters, save_ckpt_interval_epoch=999999)
             loss_dict = launcher.train_iters(self.data_loader, None, **train_config)
             if self.loss_key in loss_dict:
                 pass
