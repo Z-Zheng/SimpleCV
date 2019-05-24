@@ -41,7 +41,7 @@ If you use SimpleCV in your research, please use the following BibTeX entry.
 ```
 
 ## Usage
-Please refer to [USAGE.md](https://github.com/Z-Zheng/simplecv/USAGE.md) for the basic usage of simplecv.
+Please refer to [USAGE.md](https://github.com/Z-Zheng/simplecv/USAGE.md) for the basic usage of SimpleCV.
 
 ## Projects using SimpleCV
 - 2019 IEEE GRSS Data Fusion Contest, Track1: Single-view semantic 3D challenge, 2nd solution code (Pop-Net)
