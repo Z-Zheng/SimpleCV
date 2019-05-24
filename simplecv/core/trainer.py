@@ -149,6 +149,7 @@ class Launcher(object):
         iterator = get_iterator(iterator_type)(train_data_loader)
 
         call_backs = [(self._ckpt.save, save_ckpt_interval_epoch)]
+        signal_loss_dict = dict()
         if eval_per_epoch:
             call_backs.append(functools.partial(self.evaluate, test_data_loader))
         while self._ckpt.global_step < num_iters:
@@ -160,6 +161,7 @@ class Launcher(object):
                                       is_master=self._master)
             self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
+            signal_loss_dict = loss_dict.copy()
             # clip gradient
             grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
             clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
@@ -177,6 +179,7 @@ class Launcher(object):
                                        log_interval_step=log_interval_step)
                 if summary_weights:
                     self._logger.summary_weights(module=self.model.module, step=self._ckpt.global_step)
+        return signal_loss_dict
 
     def train_epochs(self, train_data_loader, test_data_loader=None, **kwargs):
         num_epochs = kwargs.get('num_epochs', -1)
@@ -187,6 +190,7 @@ class Launcher(object):
         iterator_type = kwargs.get('iterator_type', 'normal')
 
         iterator = get_iterator(iterator_type)(train_data_loader)
+        signal_loss_dict = dict()
         for i in range(num_epochs):
             self._model.train()
             if kwargs.get('distributed', False):
@@ -194,6 +198,7 @@ class Launcher(object):
             for data_list in iterator.iter(forward_times=forward_times):
                 start = time.time()
                 loss_dict = self.compute_loss_gradient(data_list)
+                signal_loss_dict = loss_dict.copy()
                 # clip gradient
                 grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
                 clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
@@ -214,6 +219,7 @@ class Launcher(object):
 
             if self._master:
                 self._ckpt.save()
+        return signal_loss_dict
 
     def train_by_config(self, train_data_loader, config, test_data_loader=None, ):
         self._training = True
@@ -231,14 +237,14 @@ class Launcher(object):
             if self._master:
                 self._logger.equation('num_epochs', config['num_epochs'])
                 self._logger.equation('num_iters', config['num_epochs'] * len(train_data_loader))
-            self.train_epochs(train_data_loader, test_data_loader=test_data_loader, **config)
+            signal_loss_dict = self.train_epochs(train_data_loader, test_data_loader=test_data_loader, **config)
 
         elif 'num_epochs' not in config and 'num_iters' in config:
             if self._master:
                 self._logger.approx_equation('num_epochs',
                                              round(config['num_iters'] * forward_times / len(train_data_loader), 1))
                 self._logger.equation('num_iters', config['num_iters'])
-            self.train_iters(train_data_loader, test_data_loader=test_data_loader, **config)
+            signal_loss_dict = self.train_iters(train_data_loader, test_data_loader=test_data_loader, **config)
 
         else:
             raise ValueError('`num_epochs` is mutually exclusive `num_iters`. Please only use one of them')
@@ -246,6 +252,7 @@ class Launcher(object):
             self._ckpt.save()
             if config.get('eval_after_train', True):
                 self.evaluate(test_data_loader)
+        return signal_loss_dict
 
     def init(self):
         if self._master:
@@ -275,6 +282,12 @@ class Launcher(object):
 
     def override_backward(self, fn):
         self.backward = types.MethodType(fn, self)
+
+    def invoke_plugin(self, plugin_name, *args, **kwargs):
+        if hasattr(self, plugin_name):
+            getattr(self, plugin_name)(*args, **kwargs)
+        else:
+            raise ModuleNotFoundError('plugin: {} is not found.'.format(plugin_name))
 
 
 def scale_dict(input_dict, scale):
