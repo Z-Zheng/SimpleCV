@@ -1,5 +1,7 @@
 import torch.nn as nn
 from simplecv.core import AttrDict
+from simplecv.core import trainer
+import types
 
 
 class CVModule(nn.Module):
@@ -25,6 +27,20 @@ class CVModule(nn.Module):
     @property
     def config(self):
         return self._cfg
+
+
+class LauncherPlugin(object):
+    def __init__(self, name):
+        self.plugin_name = name
+
+    def register(self, launcher):
+        assert isinstance(launcher, trainer.Launcher)
+        if hasattr(launcher, self.plugin_name):
+            raise ValueError('plugin_name: {} has existed.'.format(self.plugin_name))
+        launcher.__setattr__(self.plugin_name, types.MethodType(self.function, launcher))
+
+    def function(self, launcher: trainer.Launcher):
+        raise NotImplementedError
 
 
 class Loss(CVModule):
