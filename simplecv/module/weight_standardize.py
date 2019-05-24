@@ -53,7 +53,8 @@ def convert_conv2d_with_ws(module):
                                module.kernel_size,
                                module.stride,
                                module.padding, module.dilation, module.groups,
-                               module.bias, module.padding_mode
+                               module.bias is not None,
+                               module.padding_mode
                                )
 
         param_util.copy_conv_parameters(module, module_output)
