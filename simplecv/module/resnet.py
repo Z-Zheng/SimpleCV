@@ -8,7 +8,7 @@ from simplecv.module._resnets import resnet101
 from simplecv.module._resnets import resnext50_32x4d
 from simplecv.module._resnets import resnext101_32x8d
 
-from simplecv.interface.cvmodule import CVModule
+from simplecv.interface import CVModule
 from simplecv import registry
 from simplecv.util import param_util
 from simplecv.module import context_block

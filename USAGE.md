@@ -1,7 +1,7 @@
 ## Usage
 ### 1. Define your model using CVModule and register it with one line code.
 ```python
-from simplecv.interface.module import CVModule
+from simplecv.interface import CVModule
 from simplecv.util import registry
 
 # register your model
