@@ -53,7 +53,8 @@ class ResNetEncoder(CVModule):
                 self.config.output_stride != 8]):
             raise ValueError('output_stride must be 8, 16 or 32.')
 
-        self.resnet = registry.MODEL[self.config.resnet_type](pretrained=self.config.pretrained)
+        self.resnet = registry.MODEL[self.config.resnet_type](pretrained=self.config.pretrained,
+                                                              norm_layer=self.config.norm_layer)
         self.resnet._modules.pop('fc')
         if not self.config.batchnorm_trainable:
             self._frozen_res_bn()
@@ -170,6 +171,7 @@ class ResNetEncoder(CVModule):
             # 16 or 32
             output_stride=32,
             with_cp=(False, False, False, False),
+            norm_layer=nn.BatchNorm2d,
         ))
 
     def train(self, mode=True):
