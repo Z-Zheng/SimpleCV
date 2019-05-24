@@ -11,7 +11,9 @@ from simplecv.module.se_block import SEBlock
 
 # encoder
 from simplecv.module.resnet import ResNetEncoder
-
+from simplecv.module.fpn import FPN
+from simplecv.module.fpn import LastLevelMaxPool
+from simplecv.module.fpn import LastLevelP6P7
 
 # loss
 from simplecv.module import loss
