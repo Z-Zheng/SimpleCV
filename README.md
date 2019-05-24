@@ -12,11 +12,11 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 - 2018/12/20 support SE Block
 ## Features
 1. Focus on your research rather than training template codes
-2. High performance parallel training using Pytorch 1.1
-3. Dynamic module registration mechanism makes you customize components on the fly
-4. Support mixed precision training, significantly reducing GPU memory usage with similar performance
-5. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
-6. Flexible plugin mechanism for a hackable trainer without any coupling!
+2. Dynamic module registration mechanism makes you customize components on the fly
+3. Flexible plugin mechanism for a hackable trainer without any coupling!
+4. High performance parallel training using Pytorch 1.1
+5. Support mixed precision training, significantly reducing GPU memory usage with similar performance
+6. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
 --------------
 ## Installation
 
@@ -41,15 +41,15 @@ If you use SimpleCV in your research, please use the following BibTeX entry.
 ```
 
 ## Usage
-Please refer to [USAGE.md](https://github.com/Z-Zheng/simplecv/USAGE.md) for the basic usage of simplecv.
+Please refer to [USAGE.md](https://github.com/Z-Zheng/simplecv/USAGE.md) for the basic usage of SimpleCV.
 
-## Projects using simplecv
+## Projects using SimpleCV
 - 2019 IEEE GRSS Data Fusion Contest, Track1: Single-view semantic 3D challenge, 2nd solution code (Pop-Net)
 
 
 ### TODO
 - Support more preprocess methods using numpy and pytorch
-- [ ] add detail API doc and tutorial
+- [ ] add detailed API doc and tutorial
 - [ ] add more preset modules
 - [ ] add complete demos of segmentation, detection
 
