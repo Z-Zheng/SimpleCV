@@ -12,11 +12,11 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 - 2018/12/20 support SE Block
 ## Features
 1. Focus on your research rather than training template codes
-2. High performance parallel training using Pytorch 1.1
-3. Dynamic module registration mechanism makes you customize components on the fly
-4. Support mixed precision training, significantly reducing GPU memory usage with similar performance
-5. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
-6. Flexible plugin mechanism for a hackable trainer without any coupling!
+2. Dynamic module registration mechanism makes you customize components on the fly
+3. Flexible plugin mechanism for a hackable trainer without any coupling!
+4. High performance parallel training using Pytorch 1.1
+5. Support mixed precision training, significantly reducing GPU memory usage with similar performance
+6. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
 --------------
 ## Installation
 
