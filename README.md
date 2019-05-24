@@ -49,7 +49,7 @@ Please refer to [USAGE.md](https://github.com/Z-Zheng/simplecv/USAGE.md) for the
 
 ### TODO
 - Support more preprocess methods using numpy and pytorch
-- [ ] add detail API doc and tutorial
+- [ ] add detailed API doc and tutorial
 - [ ] add more preset modules
 - [ ] add complete demos of segmentation, detection
 
