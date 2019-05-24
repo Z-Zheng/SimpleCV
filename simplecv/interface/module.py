@@ -1,6 +1,6 @@
 import torch.nn as nn
 from simplecv.core import AttrDict
-from simplecv.core import trainer
+from simplecv.core.trainer import Launcher
 import types
 
 
@@ -34,12 +34,12 @@ class LauncherPlugin(object):
         self.plugin_name = name
 
     def register(self, launcher):
-        assert isinstance(launcher, trainer.Launcher)
+        assert isinstance(launcher, Launcher)
         if hasattr(launcher, self.plugin_name):
             raise ValueError('plugin_name: {} has existed.'.format(self.plugin_name))
         launcher.__setattr__(self.plugin_name, types.MethodType(self.function, launcher))
 
-    def function(self, launcher: trainer.Launcher):
+    def function(self, launcher: Launcher):
         raise NotImplementedError
 
 
