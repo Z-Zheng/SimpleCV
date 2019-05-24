@@ -149,3 +149,27 @@ def copy_conv_parameters(src: nn.Conv2d, dst: nn.Conv2d):
             assert dst.__dict__[name] == src.__dict__[name]
 
         dst.__dict__[name] = src.__dict__[name]
+
+
+def copy_bn_parameters(src: nn.modules.batchnorm._BatchNorm, dst: nn.modules.batchnorm._BatchNorm):
+    if dst.affine:
+        dst.weight.data = src.weight.data.clone().detach()
+        dst.bias.data = src.bias.data.clone().detach()
+    dst.running_mean = src.running_mean
+    dst.running_var = src.running_var
+    dst.num_batches_tracked = src.num_batches_tracked
+    for name, v in src.__dict__.items():
+        if name.startswith('_'):
+            continue
+        dst.__dict__[name] = src.__dict__[name]
+
+
+def copy_weight_bias(src: nn.Module, dst: nn.Module):
+    if dst.weight is not None:
+        dst.weight.data = src.weight.data.clone().detach()
+    if dst.bias is not None:
+        dst.bias.data = src.bias.data.clone().detach()
+    for name, v in src.__dict__.items():
+        if name.startswith('_'):
+            continue
+        dst.__dict__[name] = src.__dict__[name]

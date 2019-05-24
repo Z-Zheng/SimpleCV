@@ -227,9 +227,24 @@ def plugin_context_block2d(module: nn.Module, ratio):
                                                  ratio=ratio,
                                                  stride=module.stride,
                                                  downsample=module.downsample)
+        # conv1 bn1
         param_util.copy_conv_parameters(module.conv1, module_output.conv1)
+        if isinstance(module.bn1, nn.modules.batchnorm._BatchNorm):
+            param_util.copy_bn_parameters(module.bn1, module_output.bn1)
+        elif isinstance(module.bn1, nn.GroupNorm):
+            param_util.copy_weight_bias(module.bn1, module_output.bn1)
+        # conv2 bn2
         param_util.copy_conv_parameters(module.conv2, module_output.conv2)
+        if isinstance(module.bn2, nn.modules.batchnorm._BatchNorm):
+            param_util.copy_bn_parameters(module.bn2, module_output.bn2)
+        elif isinstance(module.bn2, nn.GroupNorm):
+            param_util.copy_weight_bias(module.bn2, module_output.bn2)
+        # conv3 bn3
         param_util.copy_conv_parameters(module.conv3, module_output.conv3)
+        if isinstance(module.bn3, nn.modules.batchnorm._BatchNorm):
+            param_util.copy_bn_parameters(module.bn3, module_output.bn3)
+        elif isinstance(module.bn3, nn.GroupNorm):
+            param_util.copy_weight_bias(module.bn3, module_output.bn3)
 
     for name, sub_module in module.named_children():
         module_output.add_module(name, plugin_context_block2d(sub_module, ratio))
