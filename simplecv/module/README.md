@@ -15,3 +15,4 @@
 - [GCNet](https://arxiv.org/abs/1904.11492)
 - [FPN](https://arxiv.org/abs/1612.03144)
 - [mobilenetv2](https://arxiv.org/abs/1801.04381)
+- [Weight Standardization](https://arxiv.org/abs/1903.10520) 
