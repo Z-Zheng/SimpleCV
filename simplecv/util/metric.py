@@ -43,3 +43,19 @@ def th_cohen_kappa_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes
     w_mat.view(-1)[:: n_classes + 1] = 0.
     k = torch.sum(w_mat * cm_th) / torch.sum(w_mat * expected)
     return 1. - k
+
+
+def th_intersection_over_union_per_class(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
+    cm_th = th_confusion_matrix(y_true, y_pred, num_classes)
+    sum_over_row = cm_th.sum(dim=0)
+    sum_over_col = cm_th.sum(dim=0)
+    diag = cm_th.diag()
+    denominator = sum_over_row + sum_over_col - diag
+
+    iou_per_class = diag / denominator
+    return iou_per_class
+
+
+def th_mean_intersection_over_union(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None):
+    iou_per_class = th_intersection_over_union_per_class(y_true, y_pred, num_classes)
+    return iou_per_class.mean()
