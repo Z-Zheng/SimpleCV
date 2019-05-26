@@ -33,6 +33,8 @@ def freeze_params(module):
         p.requires_grad = False
         # todo: show complete name
         # logger.info('[freeze params] {name}'.format(name=name))
+        if isinstance(module, nn.modules.batchnorm._BatchNorm):
+            module.eval()
 
 
 def freeze_modules(module, specific_class=None):
