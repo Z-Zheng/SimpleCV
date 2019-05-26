@@ -12,7 +12,9 @@ from simplecv.interface import CVModule
 from simplecv import registry
 from simplecv.util import param_util
 from simplecv.module import context_block
+from simplecv.util import logger
 
+_logger = logger.get_logger()
 __all__ = ['make_layer',
            'ResNetEncoder',
            'plugin_context_block2d']
@@ -100,25 +102,31 @@ class ResNetEncoder(CVModule):
         self.resnet.layer4 = value
 
     def _frozen_res_bn(self):
-        param_util.freeze_modules(self.resnet, nn.BatchNorm2d)
+        _logger.info('ResNetEncoder: freeze all BN layers')
+        param_util.freeze_modules(self.resnet, nn.modules.batchnorm._BatchNorm)
         for m in self.resnet.modules():
-            if isinstance(m, nn.BatchNorm2d):
+            if isinstance(m, nn.modules.batchnorm._BatchNorm):
                 m.eval()
 
     def _freeze_at(self, at=2):
         if at >= 1:
+            _logger.info('ResNetEncoder: freeze conv1 bn1')
             param_util.freeze_params(self.resnet.conv1)
             param_util.freeze_params(self.resnet.bn1)
 
         if at >= 2:
+            _logger.info('ResNetEncoder: freeze stage-1')
             param_util.freeze_params(self.resnet.layer1)
 
         if at >= 3:
+            _logger.info('ResNetEncoder: freeze stage-2')
             param_util.freeze_params(self.resnet.layer2)
 
         if at >= 4:
+            _logger.info('ResNetEncoder: freeze stage-3')
             param_util.freeze_params(self.resnet.layer3)
         if at >= 5:
+            _logger.info('ResNetEncoder: freeze stage-4')
             param_util.freeze_params(self.resnet.layer4)
 
     @staticmethod
