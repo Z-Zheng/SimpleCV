@@ -57,6 +57,7 @@ class ResNetEncoder(CVModule):
 
         self.resnet = registry.MODEL[self.config.resnet_type](pretrained=self.config.pretrained,
                                                               norm_layer=self.config.norm_layer)
+        _logger.info('ResNetEncoder: pretrained = {}'.format(self.config.pretrained))
         self.resnet._modules.pop('fc')
         if not self.config.batchnorm_trainable:
             self._frozen_res_bn()
@@ -110,7 +111,7 @@ class ResNetEncoder(CVModule):
 
     def _freeze_at(self, at=2):
         if at >= 1:
-            _logger.info('ResNetEncoder: freeze conv1 bn1')
+            _logger.info('ResNetEncoder: freeze stem')
             param_util.freeze_params(self.resnet.conv1)
             param_util.freeze_params(self.resnet.bn1)
 
