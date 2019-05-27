@@ -141,7 +141,7 @@ def count_model_flops(model, x):
 
 def copy_conv_parameters(src: nn.Conv2d, dst: nn.Conv2d):
     dst.weight.data = src.weight.data.clone().detach()
-    if dst.bias is not None:
+    if hasattr(dst, 'bias') and dst.bias is not None:
         dst.bias.data = src.bias.data.clone().detach()
 
     for name, v in src.__dict__.items():
