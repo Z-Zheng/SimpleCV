@@ -76,6 +76,7 @@ class ResNetEncoder(CVModule):
 
     @layer1.setter
     def layer1(self, value):
+        del self.resnet.layer1
         self.resnet.layer1 = value
 
     @property
@@ -84,6 +85,7 @@ class ResNetEncoder(CVModule):
 
     @layer2.setter
     def layer2(self, value):
+        del self.resnet.layer2
         self.resnet.layer2 = value
 
     @property
@@ -92,6 +94,7 @@ class ResNetEncoder(CVModule):
 
     @layer3.setter
     def layer3(self, value):
+        del self.resnet.layer3
         self.resnet.layer3 = value
 
     @property
@@ -100,6 +103,7 @@ class ResNetEncoder(CVModule):
 
     @layer4.setter
     def layer4(self, value):
+        del self.resnet.layer4
         self.resnet.layer4 = value
 
     def _frozen_res_bn(self):
@@ -246,6 +250,8 @@ def plugin_context_block2d(module: nn.Module, ratio):
             param_util.copy_bn_parameters(module.bn3, module_output.bn3)
         elif isinstance(module.bn3, nn.GroupNorm):
             param_util.copy_weight_bias(module.bn3, module_output.bn3)
+        del module
+        return module_output
 
     for name, sub_module in module.named_children():
         module_output.add_module(name, plugin_context_block2d(sub_module, ratio))
