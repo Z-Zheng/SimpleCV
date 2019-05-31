@@ -5,7 +5,7 @@ def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=
     """
 
     Args:
-        y_true: 1-D tensor of shape [n_samples]
+        y_true: 1-D tensor of shape [n_samples], label value starts from 1 rather than 0
         y_pred: 1-D tensor of shape [n_samples]
         num_classes: scalar
     Returns:
@@ -19,7 +19,8 @@ def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=
     else:
         cm = torch.sparse_coo_tensor(indices=torch.stack([y_true, y_pred], dim=0), values=torch.ones_like(y_pred),
                                      size=size)
-    return cm.to_dense()[1:, 1:]
+
+    return cm.to_dense()[1:, 1:] if cm.size(0) > 2 else cm.to_dense()
 
 
 def th_overall_accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor):
