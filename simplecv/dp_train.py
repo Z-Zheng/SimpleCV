@@ -7,6 +7,7 @@ from simplecv.opt.optimizer import make_optimizer
 from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
+from simplecv.core._misc import merge_dict
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_path', default=None, type=str,
@@ -47,7 +48,7 @@ def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbac
         for f in after_construct_launcher_callbacks:
             f(tl)
 
-    tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
+    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'],cfg['test']), test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':

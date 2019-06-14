@@ -252,7 +252,7 @@ class Launcher(object):
         if self._master:
             self._ckpt.save()
             if config.get('eval_after_train', True):
-                self.evaluate(test_data_loader)
+                self.evaluate(test_data_loader, config)
         return signal_loss_dict
 
     def init(self):
