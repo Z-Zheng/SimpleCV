@@ -8,6 +8,7 @@ from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
 from simplecv.core import default_backward
+from simplecv.core._misc import merge_dict
 
 try:
     import apex
@@ -80,7 +81,7 @@ def run(local_rank,
         for f in after_construct_launcher_callbacks:
             f(tl)
 
-    tl.train_by_config(traindata_loader, config=cfg['train'], test_data_loader=testdata_loader)
+    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'],cfg['test']), test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':
