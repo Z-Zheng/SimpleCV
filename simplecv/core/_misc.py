@@ -21,3 +21,15 @@ class Callback(object):
             return out
 
         return wrapped_func()
+
+
+def merge_dict(dict1: dict, dict2: dict):
+    # check whether redundant key
+    redundant_keys = [key for key in dict1 if key in dict2]
+    if len(redundant_keys) > 0:
+        raise ValueError('Duplicate keys: {}'.format(redundant_keys))
+
+    merged = dict1.copy()
+    merged.update(dict2)
+
+    return merged
