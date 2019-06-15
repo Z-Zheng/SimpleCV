@@ -41,9 +41,16 @@ class Bottleneck(nn.Module):
         return out_list
 
     def _forward_with_dilation(self, x, dilation):
+        org_dilation = self.conv2.dilation
+        org_padding = self.conv2.padding
         self.conv2.dilation = (dilation, dilation)
         self.conv2.padding = (dilation, dilation)
-        return self._forward(x)
+
+        out = self._forward(x)
+
+        self.conv2.dilation = org_dilation
+        self.conv2.padding = org_padding
+        return out
 
     def _forward(self, x):
         identity = x
@@ -68,5 +75,4 @@ class Bottleneck(nn.Module):
 
 
 def plugin_to_resnet(module):
-
     pass
