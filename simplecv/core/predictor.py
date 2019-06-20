@@ -2,7 +2,7 @@ import torch
 from simplecv.core.transform_base import TestTransform
 
 
-class Dragon(object):
+class DistPredictor(object):
     def __init__(self):
         self._model_list = list()
         self._trans_list = list()
