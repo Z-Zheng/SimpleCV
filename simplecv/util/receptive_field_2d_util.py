@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 from collections import namedtuple
 import matplotlib.pyplot as plt
-import math
-from functools import reduce
 import numpy as np
 from scipy import interpolate
 
@@ -52,18 +50,6 @@ def from_maxpool2d(module: nn.MaxPool2d, name=None):
         layer_name=module.__class__.__name__ if name is None else name,
         is_hide=False
     )
-
-
-def module_to_baselayers(module: nn.Module):
-    """
-
-    Args:
-        module:
-
-    Returns:
-        list([Baselayer,...])
-    """
-    pass
 
 
 def plot_receptive_field_growth_from_module(input_shape, module: nn.Module):
