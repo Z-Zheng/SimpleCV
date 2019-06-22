@@ -48,7 +48,7 @@ def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbac
         for f in after_construct_launcher_callbacks:
             f(tl)
 
-    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'],cfg['test']), test_data_loader=testdata_loader)
+    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':

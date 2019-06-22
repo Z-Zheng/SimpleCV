@@ -152,7 +152,7 @@ class Launcher(object):
         call_backs = [(self._ckpt.save, save_ckpt_interval_epoch)]
         signal_loss_dict = dict()
         if eval_per_epoch:
-            call_backs.append(functools.partial(self.evaluate, test_data_loader))
+            call_backs.append(functools.partial(self.evaluate, test_data_loader, kwargs))
         while self._ckpt.global_step < num_iters:
             start = time.time()
             if distributed:
