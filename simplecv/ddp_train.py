@@ -18,6 +18,7 @@ parser.add_argument('--model_dir', default=None, type=str,
 parser.add_argument('--cpu', action='store_true', default=False, help='use cpu')
 from simplecv.core._misc import merge_dict
 
+
 def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
     # 0. config
     cfg = config.import_config(config_path)
@@ -58,7 +59,7 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
             f(tl)
 
     tl.logger.info('sync bn: {}'.format('True' if cfg['train'].get('sync_bn', False) else 'False'))
-    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'],cfg['test']), test_data_loader=testdata_loader)
+    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':
