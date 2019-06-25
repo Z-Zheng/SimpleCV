@@ -24,11 +24,12 @@ parser.add_argument(
 )
 
 
-def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
+def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None, opts=None):
     # 0. config
     cfg = config.import_config(config_path)
     cfg = AttrDict.from_dict(cfg)
-    cfg.update_from_list(args.opts)
+    if opts is not None:
+        cfg.update_from_list(opts)
     # 1. model
     model = make_model(cfg['model'])
 
@@ -56,6 +57,7 @@ def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbac
         for f in after_construct_launcher_callbacks:
             f(tl)
 
+    tl.logger.info('external parameter: {}'.format(opts))
     tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
 
 
@@ -65,4 +67,5 @@ if __name__ == '__main__':
     assert args.model_dir is not None, 'The model dir is needed.'
     run(config_path=args.config_path,
         model_dir=args.model_dir,
-        cpu_mode=args.cpu)
+        cpu_mode=args.cpu,
+        opts=args.opts)

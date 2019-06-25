@@ -9,6 +9,7 @@ from simplecv.util import config
 from simplecv.core import trainer
 from simplecv.core import default_backward
 from simplecv.core._misc import merge_dict
+from simplecv.core.config import AttrDict
 
 try:
     import apex
@@ -26,6 +27,12 @@ parser.add_argument('--model_dir', default=None, type=str,
 parser.add_argument('--cpu', action='store_true', default=False, help='use cpu')
 parser.add_argument('--opt_level', type=str, default='O0', help='O0, O1, O2, O3')
 parser.add_argument('--keep_batchnorm_fp32', type=bool, default=None, help='')
+parser.add_argument(
+    "opts",
+    help="Modify config options using the command-line",
+    default=None,
+    nargs=argparse.REMAINDER,
+)
 
 OPT_LEVELS = ['O0', 'O1', 'O2', 'O3']
 
@@ -35,10 +42,13 @@ def run(local_rank,
         model_dir,
         opt_level='O0',
         cpu_mode=False,
-        after_construct_launcher_callbacks=None):
+        after_construct_launcher_callbacks=None,
+        opts=None):
     # 0. config
     cfg = config.import_config(config_path)
-
+    cfg = AttrDict.from_dict(cfg)
+    if opts is not None:
+        cfg.update_from_list(opts)
     # 1. model
     model = make_model(cfg['model'])
     if cfg['train'].get('apex_sync_bn', False):
@@ -75,13 +85,14 @@ def run(local_rank,
     # log dist train info
     tl.logger.info('[NVIDIA/apex] amp optimizer. opt_level = {}'.format(opt_level))
     tl.logger.info('apex sync bn: {}'.format('on' if cfg['train'].get('apex_sync_bn', False) else 'off'))
+    tl.logger.info('external parameter: {}'.format(opts))
     tl.override_backward(default_backward.amp_backward)
 
     if after_construct_launcher_callbacks is not None:
         for f in after_construct_launcher_callbacks:
             f(tl)
 
-    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'],cfg['test']), test_data_loader=testdata_loader)
+    tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
 
 
 if __name__ == '__main__':
