@@ -5,6 +5,7 @@
 ---------------------
 This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 ## Change logs
+- 2019/06/25 v0.3.1 released! More features have been added.
 - 2019/05/24 v0.3.0 released! 
 - 2019/05/05 compatible with pytorch==1.1.0 (naive sync bn in ddp train)
 - 2019/04/08 v0.2.0 released! Support apex!
