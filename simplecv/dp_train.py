@@ -8,6 +8,7 @@ from simplecv.opt.learning_rate import make_learningrate
 from simplecv.util import config
 from simplecv.core import trainer
 from simplecv.core._misc import merge_dict
+from simplecv.core.config import AttrDict
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_path', default=None, type=str,
@@ -15,12 +16,19 @@ parser.add_argument('--config_path', default=None, type=str,
 parser.add_argument('--model_dir', default=None, type=str,
                     help='path to model directory')
 parser.add_argument('--cpu', action='store_true', default=False, help='')
+parser.add_argument(
+    "opts",
+    help="Modify config options using the command-line",
+    default=None,
+    nargs=argparse.REMAINDER,
+)
 
 
 def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbacks=None):
     # 0. config
     cfg = config.import_config(config_path)
-
+    cfg = AttrDict.from_dict(cfg)
+    cfg.update_from_list(args.opts)
     # 1. model
     model = make_model(cfg['model'])
 
