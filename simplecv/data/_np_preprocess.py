@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import math
 
 def _np_resize_to_range(image, min_size, max_size):
     im_shape = image.shape
@@ -148,3 +148,30 @@ def _np_im_random_scale(image, scale_factors, size_divisor=None, mask=None):
         )
         return resized_im, resized_mask
     return resized_im
+
+
+def sliding_window(input_size, kernel_size, stride: int):
+    ih, iw = input_size
+    kh, kw = kernel_size
+    assert ih > 0 and iw > 0 and kh > 0 and kw > 0 and stride > 0
+
+    kh = ih if kh > ih else kh
+    kw = iw if kw > iw else kw
+
+    num_rows = math.ceil((ih - kh) / stride) if math.ceil((ih - kh) / stride) * stride + kh >= ih else math.ceil(
+        (ih - kh) / stride) + 1
+    num_cols = math.ceil((iw - kw) / stride) if math.ceil((iw - kw) / stride) * stride + kw >= iw else math.ceil(
+        (iw - kw) / stride) + 1
+
+    x, y = np.meshgrid(np.arange(num_cols + 1), np.arange(num_rows + 1))
+    xmin = x * stride
+    ymin = y * stride
+
+    xmin = xmin.ravel()
+    ymin = ymin.ravel()
+    xmin_offset = np.where(xmin + kw > iw, iw - xmin - kw, np.zeros_like(xmin))
+    ymin_offset = np.where(ymin + kh > ih, ih - ymin - kh, np.zeros_like(ymin))
+    boxes = np.stack([xmin + xmin_offset, ymin + ymin_offset,
+                      np.minimum(xmin + kw, iw), np.minimum(ymin + kh, ih)], axis=1)
+
+    return boxes

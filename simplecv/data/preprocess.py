@@ -9,7 +9,7 @@ from simplecv.data._np_preprocess import _np_mean_std_normalize
 from simplecv.data._np_preprocess import _np_random_crop
 from simplecv.data._np_preprocess import _np_im_random_scale
 from simplecv.data._np_preprocess import _np_im_scale
-
+from simplecv.data._np_preprocess import sliding_window
 
 def random_crop(image, crop_size):
     if isinstance(image, np.ndarray):
