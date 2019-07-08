@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import math
 
 
 def _th_resize_to_range(image, min_size, max_size):
@@ -53,3 +54,24 @@ def _th_mean_std_normalize_(image, mean=(123.675, 116.28, 103.53), std=(58.395, 
     std = torch.tensor(std, requires_grad=False).reshape(*shape)
 
     return image.sub_(mean).div_(std)
+
+
+def _th_divisible_pad(tensor, size_divisor: int, mode='constant', value=0):
+    """
+
+    Args:
+        tensor: 4-D tensor of shape [batch, channel, height, width]
+        size_divisor: int
+        mode: ``'constant'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+            Default: ``'constant'``
+        value: fill value for ``'constant'`` padding. Default: ``0``
+
+    Returns:
+
+    """
+    height, width = tensor.size(2), tensor.size(3)
+    nheight = math.ceil(height / size_divisor) * size_divisor
+    nwidth = math.ceil(width / size_divisor) * size_divisor
+
+    pad_tensor = F.pad(tensor, pad=[0, nwidth - width, 0, nheight - height, 0, 0, 0, 0], mode=mode, value=value)
+    return pad_tensor

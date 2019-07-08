@@ -10,6 +10,8 @@ from simplecv.data._np_preprocess import _np_random_crop
 from simplecv.data._np_preprocess import _np_im_random_scale
 from simplecv.data._np_preprocess import _np_im_scale
 from simplecv.data._np_preprocess import sliding_window
+from simplecv.data._th_preprocess import _th_divisible_pad as th_divisible_pad
+
 
 def random_crop(image, crop_size):
     if isinstance(image, np.ndarray):
