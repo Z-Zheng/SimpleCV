@@ -51,7 +51,7 @@ def last_zero_init(m):
 
 class ContextBlock2d(nn.Module):
 
-    def __init__(self, in_channels, inner_dim, pool='att', fusions=('channel_add', 'channel_mul')):
+    def __init__(self, in_channels, inner_dim, pool='att', fusions=('channel_add',)):
         """
         
         Args:
