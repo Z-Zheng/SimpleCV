@@ -1,4 +1,5 @@
 from ast import literal_eval
+import warnings
 
 
 class AttrDict(dict):
@@ -33,4 +34,8 @@ class AttrDict(dict):
             last_key = key_list.pop()
             for sub_key in key_list:
                 item = self[sub_key] if item is None else item[sub_key]
-            item[last_key] = literal_eval(value)
+            try:
+                item[last_key] = literal_eval(value)
+            except ValueError:
+                item[last_key] = value
+                warnings.warn('a string value is set to {}'.format(key))
