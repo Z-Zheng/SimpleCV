@@ -25,11 +25,11 @@ class HorizontalFlip(TestTransform):
         super(HorizontalFlip, self).__init__()
 
     def transform(self, inputs):
-        transformed_inputs = torch.flip(inputs, [1])
+        transformed_inputs = torch.flip(inputs, [3])
         return transformed_inputs
 
     def inv_transform(self, transformed_inputs):
-        inputs = torch.flip(transformed_inputs, [1])
+        inputs = torch.flip(transformed_inputs, [3])
         return inputs
 
 
@@ -38,11 +38,11 @@ class VerticalFlip(TestTransform):
         super(VerticalFlip, self).__init__()
 
     def transform(self, inputs):
-        transformed_inputs = torch.flip(inputs, [0])
+        transformed_inputs = torch.flip(inputs, [2])
         return transformed_inputs
 
     def inv_transform(self, transformed_inputs):
-        inputs = torch.flip(transformed_inputs, [0])
+        inputs = torch.flip(transformed_inputs, [2])
         return inputs
 
 
