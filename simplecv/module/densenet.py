@@ -45,6 +45,18 @@ class DenseNetEncoder(CVModule):
             memory_efficient=False
         ))
 
+    def out_channels(self):
+        if self.config.densenet_type == 'densenet121':
+            return (256, 512, 1024, 1024)
+        elif self.config.densenet_type == 'densenet161':
+            return (384, 768, 2112, 2208)
+        elif self.config.densenet_type == 'densenet201':
+            return (256, 512, 1792, 1920)
+        elif self.config.densenet_type == 'densenet169':
+            return (256, 512, 1280, 1664)
+        else:
+            raise ValueError('do not support {}'.format(self.config.densenet_type))
+
 
 if __name__ == '__main__':
     model = DenseNetEncoder(dict(densenet_type='densenet169', ))
@@ -55,4 +67,6 @@ if __name__ == '__main__':
 
     layers = model.layers()
 
-    model(torch.ones(1, 3, 256, 256))
+    os = model(torch.ones(1, 3, 256, 256))
+    for o in os:
+        print(o.shape)
