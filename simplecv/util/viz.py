@@ -267,3 +267,23 @@ def expand_mask(masks, bboxes, im_shape, scores=None, thresh=0.5, scale=1.0, sor
         full_masks.append(fill(mask, bbox, im_shape))
     full_masks = np.array(full_masks)
     return full_masks, sorted_inds
+
+
+def get_pallete(num_cls):
+    n = num_cls
+    pallete = [0] * (n * 3)
+    for j in range(0, n):
+        lab = j
+        pallete[j * 3 + 0] = 0
+        pallete[j * 3 + 1] = 0
+        pallete[j * 3 + 2] = 0
+        i = 0
+        while (lab > 0):
+            pallete[j * 3 + 0] |= (((lab >> 0) & 1) << (7 - i))
+            pallete[j * 3 + 1] |= (((lab >> 1) & 1) << (7 - i))
+            pallete[j * 3 + 2] |= (((lab >> 2) & 1) << (7 - i))
+            i = i + 1
+            lab >>= 3
+    return pallete
+
+
