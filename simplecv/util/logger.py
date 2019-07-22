@@ -88,9 +88,9 @@ class Logger(object):
                   log_interval_step=1):
         smooth_loss_dict = self.create_or_get_smoothvalues(loss_dict)
         loss_info = ''.join(
-            ['{name} = {value}\t'.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
+            ['{name} = {value}, '.format(name=name, value=str(round(value, 6)).ljust(6, '0')) for name, value in
              smooth_loss_dict.items()])
-        step_info = 'step: {}\t'.format(int(step))
+        step_info = 'step: {}, '.format(int(step))
         # eta
         smooth_time_cost = self.create_or_get_smoothvalues({'time_cost': time_cost})['time_cost']
         if num_iters is not None:
@@ -104,11 +104,11 @@ class Logger(object):
 
         if metric_dict:
             metric_info = ''.join(
-                ['[Train] {name} = {value}\t'.format(name=name, value=np.round(value, 6)) for name, value in
+                ['[Train] {name} = {value}, '.format(name=name, value=np.round(value, 6)) for name, value in
                  metric_dict.items()])
         else:
             metric_info = ''
-        lr_info = 'lr = {}\t'.format(str(round(lr, 6)))
+        lr_info = 'lr = {}, '.format(str(round(lr, 6)))
         msg = '{loss}{metric}{lr}{step}{time}'.format(loss=loss_info, metric=metric_info, step=step_info,
                                                       lr=lr_info,
                                                       time=time_cost_info)

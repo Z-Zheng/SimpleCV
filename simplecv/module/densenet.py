@@ -1,0 +1,58 @@
+from simplecv.interface import CVModule
+from simplecv import registry
+
+from simplecv.module._densenet import densenet121
+from simplecv.module._densenet import densenet161
+from simplecv.module._densenet import densenet201
+from simplecv.module._densenet import densenet169
+from simplecv.util import logger
+
+registry.MODEL.register('densenet121', densenet121)  # params=6.952 M,  32, (6, 12, 24, 16), 64
+registry.MODEL.register('densenet161', densenet161)  # params=26.468 M, 48, (6, 12, 36, 24), 96
+registry.MODEL.register('densenet201', densenet201)  # params=18.089 M, 32, (6, 12, 48, 32), 64
+registry.MODEL.register('densenet169', densenet169)  # params=12.481 M, 32, (6, 12, 32, 32), 64
+
+_logger = logger.get_logger()
+
+
+@registry.MODEL.register('densenet_encoder')
+class DenseNetEncoder(CVModule):
+    def __init__(self, config):
+        super(DenseNetEncoder, self).__init__(config)
+
+        self.densenet = registry.MODEL[self.config.densenet_type](pretrained=self.config.pretrained,
+                                                                  memory_efficient=self.config.memory_efficient)
+
+        _logger.info('DenseNetEncoder: pretrained = {}'.format(self.config.pretrained))
+        _logger.info('DenseNetEncoder: memory_efficient = {}'.format(self.config.memory_efficient))
+
+    def layers(self, inds=(1, 2, 3, 4)):
+        if not isinstance(inds, tuple) and not isinstance(inds, list):
+            inds = (inds,)
+
+        return [getattr(self.densenet.features, 'denseblock{}'.format(i)) for i in inds]
+
+    def forward(self, inputs):
+        feat_list = []
+        self.densenet.features(inputs, feat_list)
+
+        return feat_list
+
+    def set_defalut_config(self):
+        self.config.update(dict(
+            densenet_type='densenet121',
+            pretrained=True,
+            memory_efficient=False
+        ))
+
+
+if __name__ == '__main__':
+    model = DenseNetEncoder(dict(densenet_type='densenet169', ))
+    from simplecv.util import param_util
+    import torch
+
+    param_util.count_model_parameters(model)
+
+    layers = model.layers()
+
+    model(torch.ones(1, 3, 256, 256))

@@ -10,6 +10,12 @@
     - [GC-ResNets](https://arxiv.org/abs/1904.11492)
     - Config of ResNet with GN can be found [here](https://github.com/Z-Zheng/SimpleCV/tree/master/config_demo/resnet_with_gn.py).
 
+- DenseNets as Encoder
+    - DenseNet 121
+    - DenseNet 161
+    - DenseNet 201
+    - DenseNet 169
+
 - GlobalAvgPool2D
 - [AtrousSpatialPyramidPool](https://arxiv.org/abs/1802.02611)
 - SeparableConv2D
