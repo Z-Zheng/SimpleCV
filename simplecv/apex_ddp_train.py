@@ -37,6 +37,12 @@ parser.add_argument(
 OPT_LEVELS = ['O0', 'O1', 'O2', 'O3']
 
 
+def half_bn(m):
+    classname = m.__class__.__name__
+    if classname.find('BatchNorm') != -1:
+        m.half()
+
+
 def run(local_rank,
         config_path,
         model_dir,
@@ -71,6 +77,10 @@ def run(local_rank,
             model, optimizer = amp.initialize(model, optimizer,
                                               opt_level=opt_level,
                                               )
+            # half bn for https://github.com/NVIDIA/apex/issues/122, when frozen bn
+            if cfg['train'].get('half_bn', False):
+                model.apply(half_bn)
+
             model = DDP(
                 model, delay_allreduce=True,
             )
