@@ -9,16 +9,13 @@ class CVModule(nn.Module):
 
         )
         self.set_defalut_config()
-        self._update_config(config)
+        self._cfg.update(config)
 
     def forward(self, *input):
         raise NotImplementedError
 
     def set_defalut_config(self):
         raise NotImplementedError
-
-    def _update_config(self, new_config):
-        self._cfg.update(new_config)
 
     @property
     def config(self):
