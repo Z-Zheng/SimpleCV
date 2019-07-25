@@ -1,6 +1,25 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+from simplecv.util import tensor_util
+from simplecv.data import preprocess
+
+
+class THToTensor(object):
+    def __call__(self, images, masks):
+        return tensor_util.to_tensor([images, masks])
+
+
+class THNormalize(object):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, images, masks=None):
+        images_tensor = preprocess.mean_std_normalize(images,
+                                                      self.mean,
+                                                      self.std)
+        return images_tensor, masks
 
 
 class THRandomRotate90k(object):
