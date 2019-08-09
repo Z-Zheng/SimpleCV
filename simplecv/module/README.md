@@ -6,6 +6,7 @@
     - ResNet50
     - ResNet101
     - ResNeXt50_32x4d
+    - ResNeXt101_32x4d
     - ResNeXt101_32x8d
     - [GC-ResNets](https://arxiv.org/abs/1904.11492)
     - Config of ResNet with GN can be found [here](https://github.com/Z-Zheng/SimpleCV/tree/master/config_demo/resnet_with_gn.py).
