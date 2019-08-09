@@ -6,8 +6,9 @@ from simplecv.module._resnets import resnet34
 from simplecv.module._resnets import resnet50
 from simplecv.module._resnets import resnet101
 from simplecv.module._resnets import resnext50_32x4d
-from simplecv.module._resnets import resnext101_32x8d
+from simplecv.module._resnets import resnext101_32x4d
 
+from simplecv.module._resnets import resnext101_32x8d
 from simplecv.interface import CVModule
 from simplecv import registry
 from simplecv.util import param_util
@@ -24,6 +25,7 @@ registry.MODEL.register('resnet34', resnet34)
 registry.MODEL.register('resnet50', resnet50)
 registry.MODEL.register('resnet101', resnet101)
 registry.MODEL.register('resnext50_32x4d', resnext50_32x4d)
+registry.MODEL.register('resnext101_32x4d', resnext101_32x4d)
 registry.MODEL.register('resnext101_32x8d', resnext101_32x8d)
 
 
