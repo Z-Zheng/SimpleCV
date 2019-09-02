@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152', 'resnext50_32x4d', 'resnext101_32x8d']
+           'resnet152', 'resnext50_32x4d', 'resnext101_32x4d', 'resnext101_32x8d']
 
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
