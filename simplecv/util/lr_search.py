@@ -34,7 +34,7 @@ class LinearSearch(LRSearchBase):
             # don't save ckpt during searching, simply set `save_ckpt_interval_epoch` to large enough value
             train_config = dict(num_iters=self.search_iters, save_ckpt_interval_epoch=999999)
             loss_dict = launcher.train_iters(self.data_loader, None, **train_config)
-            launcher._ckpt.global_step = 0
+            launcher._ckpt._global_step = 0
             if self.loss_key in loss_dict:
                 pass
             loss = loss_dict[self.loss_key]
