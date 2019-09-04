@@ -9,7 +9,7 @@ class THRandomRotate90k(nn.Module):
         super(THRandomRotate90k, self).__init__()
         self.k = k
 
-    def forward(self, images, masks=None):
+    def __call__(self, images, masks=None):
         """ Rotate 90 * k degree for image and mask
 
         Args:
@@ -22,7 +22,7 @@ class THRandomRotate90k(nn.Module):
         """
         ret = list()
         k = int(np.random.choice([0, 1, 2, 3], 1)[0]) if self.k is None else self.k
-        if k ==0:
+        if k == 0:
             ret.append(images)
             if masks is not None:
                 ret.append(masks)
@@ -42,7 +42,7 @@ class THRandomHorizontalFlip(nn.Module):
         super(THRandomHorizontalFlip, self).__init__()
         self.p = p
 
-    def forward(self, images, masks=None):
+    def __call__(self, images, masks=None):
         """
 
         Args:
@@ -75,7 +75,7 @@ class THRandomVerticalFlip(nn.Module):
         super(THRandomVerticalFlip, self).__init__()
         self.p = p
 
-    def forward(self, images, masks=None):
+    def __call__(self, images, masks=None):
         """
 
         Args:
@@ -108,7 +108,7 @@ class THRandomCrop(nn.Module):
         super(THRandomCrop, self).__init__()
         self.crop_size = crop_size
 
-    def forward(self, images, masks=None):
+    def __call__(self, images, masks=None):
         """
 
         Args:
@@ -153,7 +153,7 @@ class THRandomScale(nn.Module):
                                     int((scale_range[1] - scale_range[0]) / scale_step) + 1)
         self.scale_factor = np.random.choice(scale_factors, size=1)[0]
 
-    def forward(self, images, masks=None):
+    def __call__(self, images, masks=None):
         """
 
         Args:
