@@ -10,4 +10,7 @@ from simplecv import module
 from simplecv import opt
 from simplecv import data
 
+# new API
 from simplecv.api import metric
+from simplecv.api import preprocess
+from simplecv.api import viz
