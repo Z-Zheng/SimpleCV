@@ -5,9 +5,8 @@ import torch.nn as nn
 
 
 class THRandomRotate90k(nn.Module):
-    def __init__(self, p=0.5, k=None):
+    def __init__(self, k=None):
         super(THRandomRotate90k, self).__init__()
-        self.p = p
         self.k = k
 
     def forward(self, images, masks=None):
@@ -21,15 +20,21 @@ class THRandomRotate90k(nn.Module):
             images_tensor
             masks_tensor
         """
-        k = int(np.random.choice([1, 2, 3], 1)[0]) if self.k is None else self.k
         ret = list()
+        k = int(np.random.choice([0, 1, 2, 3], 1)[0]) if self.k is None else self.k
+        if k ==0:
+            ret.append(images)
+            if masks is not None:
+                ret.append(masks)
+            return tuple(ret) if len(ret) > 1 else ret[0]
+
         images_tensor = torch.rot90(images, k, [0, 1])
         ret.append(images_tensor)
         if masks is not None:
             masks_tensor = torch.rot90(masks, k, [0, 1])
             ret.append(masks_tensor)
 
-        return ret if len(ret) > 1 else ret[0]
+        return tuple(ret) if len(ret) > 1 else ret[0]
 
 
 class THRandomHorizontalFlip(nn.Module):
@@ -54,7 +59,7 @@ class THRandomHorizontalFlip(nn.Module):
             ret.append(images)
             if masks is not None:
                 ret.append(masks)
-            return ret if len(ret) > 1 else ret[0]
+            return tuple(ret) if len(ret) > 1 else ret[0]
 
         images_tensor = torch.flip(images, [1])
         ret.append(images_tensor)
@@ -62,7 +67,7 @@ class THRandomHorizontalFlip(nn.Module):
             masks_tensor = torch.flip(masks, [1])
             ret.append(masks_tensor)
 
-        return ret if len(ret) > 1 else ret[0]
+        return tuple(ret) if len(ret) > 1 else ret[0]
 
 
 class THRandomVerticalFlip(nn.Module):
@@ -87,7 +92,7 @@ class THRandomVerticalFlip(nn.Module):
             ret.append(images)
             if masks is not None:
                 ret.append(masks)
-            return ret if len(ret) > 1 else ret[0]
+            return tuple(ret) if len(ret) > 1 else ret[0]
 
         images_tensor = torch.flip(images, [0])
         ret.append(images_tensor)
@@ -95,7 +100,7 @@ class THRandomVerticalFlip(nn.Module):
             masks_tensor = torch.flip(masks, [0])
             ret.append(masks_tensor)
 
-        return ret if len(ret) > 1 else ret[0]
+        return tuple(ret) if len(ret) > 1 else ret[0]
 
 
 class THRandomCrop(nn.Module):
@@ -138,7 +143,7 @@ class THRandomCrop(nn.Module):
             masks_tensor = masks[ymin:ymax, xmin:xmax]
             ret.append(masks_tensor)
 
-        return ret
+        return tuple(ret)
 
 
 class THRandomScale(nn.Module):
@@ -168,4 +173,4 @@ class THRandomScale(nn.Module):
             masks_tensor = F.interpolate(masks[None, None, :, :], scale_factor=self.scale_factor, mode='nearest')[0][0]
             ret.append(masks_tensor)
 
-        return ret
+        return tuple(ret)
