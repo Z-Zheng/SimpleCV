@@ -4,10 +4,13 @@ from simplecv.util.tensor_util import to_tensor
 
 
 class Pipeline(nn.Sequential):
-    def forward(self, *input):
+    def forward(self, *inputs):
         for module in self._modules.values():
-            input = module(*input)
-        return input
+            if isinstance(inputs, tuple):
+                inputs = module(*inputs)
+            else:
+                inputs = module(inputs)
+        return inputs
 
 
 class ToTensor(nn.Module):
