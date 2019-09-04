@@ -50,6 +50,9 @@ def th_divisible_pad(tensor, size_divisor: int, mode='constant', value=0):
     elif tensor.dim() == 3:
         height, width = tensor.size(1), tensor.size(2)
         tail_pad = [0, 0]
+    elif tensor.dim() == 2:
+        height, width = tensor.size(0), tensor.size(1)
+        tail_pad = []
     else:
         raise dim_error
     nheight = math.ceil(height / size_divisor) * size_divisor
