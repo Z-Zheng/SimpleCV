@@ -13,6 +13,15 @@ class Pipeline(nn.Sequential):
         return inputs
 
 
+class FuncWrapper(nn.Module):
+    def __init__(self, fn):
+        super(FuncWrapper, self).__init__()
+        self.fn = fn
+
+    def forward(self, *input):
+        return self.fn(*input)
+
+
 class ToTensor(nn.Module):
     def forward(self, *input):
         return to_tensor(input)
