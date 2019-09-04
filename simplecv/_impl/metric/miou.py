@@ -11,7 +11,7 @@ class MeanIntersectionOverUnion(object):
         self._total_cm = torch.zeros(num_classes, num_classes).to_sparse()
 
     def __call__(self, y_true, y_pred):
-        sparse_cm = mF.th_confusion_matrix(y_true, y_pred, self.num_classes, to_dense=False)
+        sparse_cm = mF.th_confusion_matrix(y_true.view(-1), y_pred.view(-1), self.num_classes, to_dense=False)
         self._total_cm += sparse_cm
 
     def summary(self, log_dir=None):
