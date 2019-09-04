@@ -4,7 +4,7 @@ from simplecv.util.tensor_util import to_tensor
 
 
 class Pipeline(nn.Sequential):
-    def forward(self, *inputs):
+    def __call__(self, *inputs):
         for module in self._modules.values():
             if isinstance(inputs, tuple):
                 inputs = module(*inputs)
@@ -18,12 +18,12 @@ class FuncWrapper(nn.Module):
         super(FuncWrapper, self).__init__()
         self.fn = fn
 
-    def forward(self, *input):
+    def __call__(self, *input):
         return self.fn(*input)
 
 
 class ToTensor(nn.Module):
-    def forward(self, *input):
+    def __call__(self, *input):
         return to_tensor(input)
 
 
@@ -32,15 +32,15 @@ class THChannelFirst(nn.Module):
     def _is_channel_first(tensor):
         return tensor.size(0) <= 8
 
-    def forward(self, image):
+    def __call__(self, image):
         if THChannelFirst._is_channel_first(image):
             return image
         return image.permute(2, 0, 1)
 
 
 class THChannelFirst2(THChannelFirst):
-    def forward(self, image, other):
-        return super(THChannelFirst2, self).forward(image), other
+    def __call__(self, image, other):
+        return super(THChannelFirst2, self).__call__(image), other
 
 
 class THMeanStdNormalize(nn.Module):
@@ -49,7 +49,7 @@ class THMeanStdNormalize(nn.Module):
         self._m = mean
         self._s = std
 
-    def forward(self, image):
+    def __call__(self, image):
         image = image.float()
         nimage = pF.th_mean_std_normalize(image, self._m, self._s)
 
@@ -60,8 +60,8 @@ class THMeanStdNormalize2(THMeanStdNormalize):
     def __init__(self, mean=(123.675, 116.28, 103.53), std=(58.395, 57.12, 57.375)):
         super(THMeanStdNormalize2, self).__init__(mean, std)
 
-    def forward(self, image, other):
-        nimage = super(THMeanStdNormalize2, self).forward(image)
+    def __call__(self, image, other):
+        nimage = super(THMeanStdNormalize2, self).__call__(image)
         return nimage, other
 
 
@@ -72,7 +72,7 @@ class THDivisiblePad(nn.Module):
         self.mask_pad_value = mask_pad_value
         self.pad_to_size = pad_to_size
 
-    def forward(self, image, mask=None):
+    def __call__(self, image, mask=None):
         pimage = pF.th_divisible_pad(image, self.size_divisor)
         if self.pad_to_size is not None:
             pimage = pF.th_pad_to_size(image, self.pad_to_size)
