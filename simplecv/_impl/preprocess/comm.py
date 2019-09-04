@@ -1,5 +1,6 @@
 import simplecv._impl.preprocess.function as pF
 import torch.nn as nn
+from simplecv.util.tensor_util import to_tensor
 
 
 class Pipeline(nn.Sequential):
@@ -7,6 +8,11 @@ class Pipeline(nn.Sequential):
         for module in self._modules.values():
             input = module(*input)
         return input
+
+
+class ToTensor(nn.Module):
+    def forward(self, *input):
+        return to_tensor(input)
 
 
 class THChannelFirst(nn.Module):
