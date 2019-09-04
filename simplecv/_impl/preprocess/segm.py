@@ -1,14 +1,16 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torch.nn as nn
 
 
-class THRandomRotate90k(object):
+class THRandomRotate90k(nn.Module):
     def __init__(self, p=0.5, k=None):
+        super(THRandomRotate90k, self).__init__()
         self.p = p
         self.k = k
 
-    def __call__(self, images, masks=None):
+    def forward(self, images, masks=None):
         """ Rotate 90 * k degree for image and mask
 
         Args:
@@ -30,8 +32,9 @@ class THRandomRotate90k(object):
         return ret if len(ret) > 1 else ret[0]
 
 
-class THRandomHorizontalFlip(object):
+class THRandomHorizontalFlip(nn.Module):
     def __init__(self, p=0.5):
+        super(THRandomHorizontalFlip, self).__init__()
         self.p = p
 
     def __call__(self, images, masks=None):
@@ -62,8 +65,9 @@ class THRandomHorizontalFlip(object):
         return ret if len(ret) > 1 else ret[0]
 
 
-class THRandomVerticalFlip(object):
+class THRandomVerticalFlip(nn.Module):
     def __init__(self, p=0.5):
+        super(THRandomVerticalFlip, self).__init__()
         self.p = p
 
     def __call__(self, images, masks=None):
@@ -94,8 +98,9 @@ class THRandomVerticalFlip(object):
         return ret if len(ret) > 1 else ret[0]
 
 
-class THRandomCrop(object):
+class THRandomCrop(nn.Module):
     def __init__(self, crop_size=(512, 512)):
+        super(THRandomCrop, self).__init__()
         self.crop_size = crop_size
 
     def __call__(self, images, masks=None):
@@ -136,8 +141,9 @@ class THRandomCrop(object):
         return ret
 
 
-class THRandomScale(object):
+class THRandomScale(nn.Module):
     def __init__(self, scale_range=(0.5, 2.0), scale_step=0.25):
+        super(THRandomScale, self).__init__()
         scale_factors = np.linspace(scale_range[0], scale_range[1],
                                     int((scale_range[1] - scale_range[0]) / scale_step) + 1)
         self.scale_factor = np.random.choice(scale_factors, size=1)[0]
