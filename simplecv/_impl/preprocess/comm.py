@@ -66,15 +66,21 @@ class THMeanStdNormalize2(THMeanStdNormalize):
 
 
 class THDivisiblePad(nn.Module):
-    def __init__(self, size_divisor, mask_pad_value=255):
+    def __init__(self, size_divisor, mask_pad_value=255, pad_to_size=None):
         super(THDivisiblePad, self).__init__()
         self.size_divisor = size_divisor
         self.mask_pad_value = mask_pad_value
+        self.pad_to_size = pad_to_size
 
     def forward(self, image, mask=None):
         pimage = pF.th_divisible_pad(image, self.size_divisor)
+        if self.pad_to_size is not None:
+            pimage = pF.th_pad_to_size(image, self.pad_to_size)
+
         if mask is not None:
             pmask = pF.th_divisible_pad(mask, self.size_divisor, value=self.mask_pad_value)
+            if self.pad_to_size:
+                pmask = pF.th_pad_to_size(pmask, self.pad_to_size, value=self.mask_pad_value)
         else:
             pmask = mask
 
