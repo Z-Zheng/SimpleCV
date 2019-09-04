@@ -2,10 +2,12 @@ import torch
 from PIL import Image
 import numpy as np
 import os
+import torch.nn as nn
 
 
-class VisualizeSegmm(object):
+class VisualizeSegmm(nn.Module):
     def __init__(self, out_dir, palette):
+        super(VisualizeSegmm, self).__init__()
         self.out_dir = out_dir
         self.palette = palette
         os.makedirs(self.out_dir, exist_ok=True)
