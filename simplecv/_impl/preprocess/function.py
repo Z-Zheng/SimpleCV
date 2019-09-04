@@ -61,3 +61,22 @@ def th_divisible_pad(tensor, size_divisor: int, mode='constant', value=0):
 
     pad_tensor = F.pad(tensor, pad=pad, mode=mode, value=value)
     return pad_tensor
+
+
+def th_pad_to_size(tensor, size, mode='constant', value=0):
+    if tensor.dim() == 4:
+        height, width = tensor.size(2), tensor.size(3)
+        tail_pad = [0, 0, 0, 0]
+    elif tensor.dim() == 3:
+        height, width = tensor.size(1), tensor.size(2)
+        tail_pad = [0, 0]
+    elif tensor.dim() == 2:
+        height, width = tensor.size(0), tensor.size(1)
+        tail_pad = []
+    else:
+        raise dim_error
+    ph = size[0] - height
+    pw = size[1] - width
+    assert ph >= 0 and pw >= 0
+    pad_tensor = F.pad(tensor, pad=[0, pw, 0, ph] + tail_pad, mode=mode, value=value)
+    return pad_tensor
