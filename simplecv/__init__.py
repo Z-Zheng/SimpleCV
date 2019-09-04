@@ -14,3 +14,4 @@ from simplecv import data
 from simplecv.api import metric
 from simplecv.api import preprocess
 from simplecv.api import viz
+from simplecv.api import infer_tool
