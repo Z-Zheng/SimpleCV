@@ -287,3 +287,21 @@ def get_pallete(num_cls):
     return pallete
 
 
+def plot_image_color_mask(image, mask, alpha=0.4):
+    """
+
+    Args:
+        image: 3-D array of shape [H, W, 3] following RGB mode (0-255)
+        mask: 3-D array of shape [H, W, 3] with color (0-255), background color needs to be (0, 0, 0).
+        alpha: transparency of mask
+
+    Returns:
+
+    """
+    image = image.astype(np.float32)
+    fg_mask = (np.sum(mask, axis=2) > 0).astype(np.float32)
+    im_factor = (fg_mask * (1 - alpha) + (1 - fg_mask))[:, :, None]
+    mask_factor = (fg_mask * alpha)[:, :, None]
+
+    render_image = image * im_factor + mask * mask_factor
+    return render_image.astype(np.uint8)
