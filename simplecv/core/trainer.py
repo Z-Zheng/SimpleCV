@@ -160,6 +160,7 @@ class Launcher(object):
             data_list = iterator.next(forward_times,
                                       call_backs=call_backs,
                                       is_master=self._master)
+            data_time = time.time() - start
             self._model.train()
             loss_dict = self.compute_loss_gradient(data_list)
             signal_loss_dict = loss_dict.copy()
@@ -175,6 +176,7 @@ class Launcher(object):
                 time_cost = time.time() - start
 
                 self._logger.train_log(step=self._ckpt.global_step, loss_dict=loss_dict,
+                                       data_time=data_time,
                                        time_cost=time_cost, lr=self.lr, num_iters=num_iters,
                                        tensorboard_interval_step=tensorboard_interval_step,
                                        log_interval_step=log_interval_step)

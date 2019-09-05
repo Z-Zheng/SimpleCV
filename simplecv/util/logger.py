@@ -83,7 +83,12 @@ class Logger(object):
                     continue
                 self.summary_w.add_histogram('grads/{}'.format(name), p.grad.cpu().data.numpy(), step)
 
-    def train_log(self, step, loss_dict, time_cost, lr, num_iters, metric_dict=None,
+    def train_log(self,
+                  step,
+                  loss_dict,
+                  time_cost,
+                  data_time,
+                  lr, num_iters, metric_dict=None,
                   tensorboard_interval_step=100,
                   log_interval_step=1):
         smooth_loss_dict = self.create_or_get_smoothvalues(loss_dict)
@@ -98,9 +103,11 @@ class Logger(object):
             m, s = divmod(eta, 60)
             h, m = divmod(m, 60)
             eta_str = "%02d:%02d:%02d" % (h, m, s)
-            time_cost_info = '({} sec / step, eta: {})'.format(round(time_cost, 3), eta_str)
+            time_cost_info = '({} sec / step, data: {} sec, eta: {})'.format(round(smooth_time_cost, 3),
+                                                                             round(data_time, 3),
+                                                                             eta_str)
         else:
-            time_cost_info = '({} sec / step)'.format(round(time_cost, 3))
+            time_cost_info = '({} sec / step)'.format(round(smooth_time_cost, 3))
 
         if metric_dict:
             metric_info = ''.join(
