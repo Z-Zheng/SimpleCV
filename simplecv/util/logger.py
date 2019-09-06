@@ -98,16 +98,18 @@ class Logger(object):
         step_info = 'step: {}, '.format(int(step))
         # eta
         smooth_time_cost = self.create_or_get_smoothvalues({'time_cost': time_cost})['time_cost']
+        smooth_data_time = self.create_or_get_smoothvalues({'data_time': data_time})['data_time']
         if num_iters is not None:
             eta = (num_iters - step) * smooth_time_cost
             m, s = divmod(eta, 60)
             h, m = divmod(m, 60)
             eta_str = "%02d:%02d:%02d" % (h, m, s)
             time_cost_info = '({} sec / step, data: {} sec, eta: {})'.format(round(smooth_time_cost, 3),
-                                                                             round(data_time, 3),
+                                                                             round(smooth_data_time, 3),
                                                                              eta_str)
         else:
-            time_cost_info = '({} sec / step)'.format(round(smooth_time_cost, 3))
+            time_cost_info = '({} sec / step, data: {} sec)'.format(round(smooth_time_cost, 3),
+                                                                    round(smooth_data_time, 3))
 
         if metric_dict:
             metric_info = ''.join(
