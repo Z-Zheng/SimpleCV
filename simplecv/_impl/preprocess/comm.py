@@ -9,9 +9,14 @@ class Compose(object):
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
+        if target is None:
+            for t in self.transforms:
+                image = t(image, target=target)
+            return image
+
         for t in self.transforms:
-            image, target = t(image, target)
+            image, target = t(image, target=target)
         return image, target
 
     def __repr__(self):
