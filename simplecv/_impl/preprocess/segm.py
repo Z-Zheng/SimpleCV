@@ -13,8 +13,14 @@ def transpose(img):
 
 
 class ToTensor(object):
+    def __init__(self, image_keep_255=False):
+        self.image_keep_255 = image_keep_255
+
     def __call__(self, image, mask):
-        return torch.from_numpy(np.array(image, copy=False)), torch.from_numpy(np.array(mask, copy=False))
+        if self.image_keep_255:
+            return 255 * F.to_tensor(image), torch.from_numpy(np.array(mask, copy=False))
+        else:
+            return F.to_tensor(image), torch.from_numpy(np.array(mask, copy=False))
 
 
 class RandomHorizontalFlip(object):
