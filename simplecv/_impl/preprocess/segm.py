@@ -16,11 +16,15 @@ class ToTensor(object):
     def __init__(self, image_keep_255=False):
         self.image_keep_255 = image_keep_255
 
-    def __call__(self, image, mask):
+    def __call__(self, image, mask=None):
         if self.image_keep_255:
-            return 255 * F.to_tensor(image), torch.from_numpy(np.array(mask, copy=False))
+            image = 255 * F.to_tensor(image)
         else:
-            return F.to_tensor(image), torch.from_numpy(np.array(mask, copy=False))
+            image = F.to_tensor(image)
+        if mask is None:
+            return image
+        else:
+            return image, torch.from_numpy(np.array(mask, copy=False))
 
 
 class RandomHorizontalFlip(object):
