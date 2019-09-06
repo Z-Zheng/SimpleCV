@@ -137,3 +137,30 @@ class DivisiblePad(object):
             return image
         mask = F.pad(mask, (0, 0, pw, ph), self.mask_pad_value)
         return image, mask
+
+
+class FixedPad(object):
+    def __init__(self, target_size, mask_pad_value=255):
+        self.target_size = target_size
+        self.mask_pad_value = mask_pad_value
+
+    def __call__(self, image, mask=None):
+        th, tw = self.target_size
+        h, w = image.height, image.width
+        assert th >= h and tw >= w
+
+        if th == h and tw == w:
+            if mask is None:
+                return image
+            else:
+                return image, mask
+
+        ph = th - h
+        pw = tw - w
+
+        image = F.pad(image, (0, 0, pw, ph), 0)
+        if mask is None:
+            return image
+
+        mask = F.pad(mask, (0, 0, pw, ph), self.mask_pad_value)
+        return image, mask
