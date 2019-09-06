@@ -1,7 +1,6 @@
 import random
 import math
 import torch
-import torchvision
 from torchvision.transforms import functional as F
 import numpy as np
 from PIL import Image
@@ -67,11 +66,50 @@ class RandomRotate90K(object):
 
 
 class RandomScale(object):
-    def __init__(self, scale_factor, size_divisor=32):
-        pass
+    def __init__(self, scales, size_divisor=32):
+        self.scales = scales
+        self.size_divisor = size_divisor
+
+    def compute_size(self, image):
+        h, w = image.height, image.width
+        scale = random.choice(self.scales)
+        nh = int(h * scale) // self.size_divisor * self.size_divisor
+        nw = int(w * scale) // self.size_divisor * self.size_divisor
+        return nw, nh
 
     def __call__(self, image, mask):
-        pass
+        new_size = self.compute_size(image)
+        image = F.resize(image, new_size, Image.BILINEAR)
+        mask = F.resize(mask, new_size, Image.NEAREST)
+        return image, mask
+
+
+class RandomCrop(object):
+    def __init__(self, crop_size, mask_pad_value=255):
+        self.crop_size = crop_size
+        self.mask_pad_value = mask_pad_value
+
+    def __call__(self, image, mask):
+        ih, iw = image.height, image.width
+        ch, cw = self.crop_size
+
+        if ch > ih or cw > iw:
+            ph = ch - ih
+            pw = cw - iw
+            image = F.pad(image, (0, 0, pw, ph), 0)
+            mask = F.pad(mask, (0, 0, pw, ph), self.mask_pad_value)
+
+        ih, iw = image.height, image.width
+
+        ylim = ih - ch + 1
+        xlim = iw - cw + 1
+
+        ymin = random.randint(0, ylim)
+        xmin = random.randint(0, xlim)
+
+        image = F.crop(image, ymin, xmin, ch, cw)
+        mask = F.crop(mask, ymin, xmin, ch, cw)
+        return image, mask
 
 
 class DivisiblePad(object):
