@@ -1,176 +1,133 @@
-import numpy as np
+import random
+import math
 import torch
-import torch.nn.functional as F
-import torch.nn as nn
+from torchvision.transforms import functional as F
+import numpy as np
+from PIL import Image
 
 
-class THRandomRotate90k(nn.Module):
-    def __init__(self, k=None):
-        super(THRandomRotate90k, self).__init__()
+def transpose(img):
+    if not F._is_pil_image(img):
+        raise TypeError('img should be PIL Image. Got {}'.format(type(img)))
+    return img.transpose(Image.TRANSPOSE)
+
+
+class ToTensor(object):
+    def __call__(self, image, mask):
+        return torch.from_numpy(np.array(image, copy=False)), torch.from_numpy(np.array(mask, copy=False))
+
+
+class RandomHorizontalFlip(object):
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, image, mask):
+        if random.random() < self.prob:
+            image = F.hflip(image)
+            mask = F.hflip(mask)
+        return image, mask
+
+
+class RandomVerticalFlip(object):
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, image, mask):
+        if random.random() < self.prob:
+            image = F.vflip(image)
+            mask = F.vflip(mask)
+        return image, mask
+
+
+class RandomTranspose(object):
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, image, mask):
+        if random.random() < self.prob:
+            image = transpose(image)
+            mask = transpose(mask)
+        return image, mask
+
+
+class RandomRotate90K(object):
+    def __init__(self, k=(0, 1, 2, 3)):
         self.k = k
 
-    def __call__(self, images, masks=None):
-        """ Rotate 90 * k degree for image and mask
-
-        Args:
-            images: 3-D tensor of shape [height, width, channel]
-            masks: 2-D tensor of shape [height, width]
-
-        Returns:
-            images_tensor
-            masks_tensor
-        """
-        ret = list()
-        k = int(np.random.choice([0, 1, 2, 3], 1)[0]) if self.k is None else self.k
+    def __call__(self, image, mask):
+        k = random.choice(self.k)
         if k == 0:
-            ret.append(images)
-            if masks is not None:
-                ret.append(masks)
-            return tuple(ret) if len(ret) > 1 else ret[0]
+            return image, mask
 
-        images_tensor = torch.rot90(images, k, [0, 1])
-        ret.append(images_tensor)
-        if masks is not None:
-            masks_tensor = torch.rot90(masks, k, [0, 1])
-            ret.append(masks_tensor)
+        image = F.rotate(image, 90 * k, expand=True)
+        mask = F.rotate(mask, 90 * k, expand=True)
 
-        return tuple(ret) if len(ret) > 1 else ret[0]
+        return image, mask
 
 
-class THRandomHorizontalFlip(nn.Module):
-    def __init__(self, p=0.5):
-        super(THRandomHorizontalFlip, self).__init__()
-        self.p = p
+class RandomScale(object):
+    def __init__(self, scales, size_divisor=32):
+        self.scales = scales
+        self.size_divisor = size_divisor
 
-    def __call__(self, images, masks=None):
-        """
+    def compute_size(self, image):
+        h, w = image.height, image.width
+        scale = random.choice(self.scales)
+        nh = int(h * scale) // self.size_divisor * self.size_divisor
+        nw = int(w * scale) // self.size_divisor * self.size_divisor
+        return nw, nh
 
-        Args:
-            images: 3-D tensor of shape [height, width, channel]
-            masks: 2-D tensor of shape [height, width]
-
-        Returns:
-            images_tensor
-            masks_tensor
-        """
-
-        ret = list()
-        if self.p < np.random.uniform():
-            ret.append(images)
-            if masks is not None:
-                ret.append(masks)
-            return tuple(ret) if len(ret) > 1 else ret[0]
-
-        images_tensor = torch.flip(images, [1])
-        ret.append(images_tensor)
-        if masks is not None:
-            masks_tensor = torch.flip(masks, [1])
-            ret.append(masks_tensor)
-
-        return tuple(ret) if len(ret) > 1 else ret[0]
+    def __call__(self, image, mask):
+        new_size = self.compute_size(image)
+        image = F.resize(image, new_size, Image.BILINEAR)
+        mask = F.resize(mask, new_size, Image.NEAREST)
+        return image, mask
 
 
-class THRandomVerticalFlip(nn.Module):
-    def __init__(self, p=0.5):
-        super(THRandomVerticalFlip, self).__init__()
-        self.p = p
-
-    def __call__(self, images, masks=None):
-        """
-
-        Args:
-            images: 3-D tensor of shape [height, width, channel]
-            masks: 2-D tensor of shape [height, width]
-
-        Returns:
-            images_tensor
-            masks_tensor
-        """
-        ret = list()
-
-        if self.p < np.random.uniform():
-            ret.append(images)
-            if masks is not None:
-                ret.append(masks)
-            return tuple(ret) if len(ret) > 1 else ret[0]
-
-        images_tensor = torch.flip(images, [0])
-        ret.append(images_tensor)
-        if masks is not None:
-            masks_tensor = torch.flip(masks, [0])
-            ret.append(masks_tensor)
-
-        return tuple(ret) if len(ret) > 1 else ret[0]
-
-
-class THRandomCrop(nn.Module):
-    def __init__(self, crop_size=(512, 512)):
-        super(THRandomCrop, self).__init__()
+class RandomCrop(object):
+    def __init__(self, crop_size, mask_pad_value=255):
         self.crop_size = crop_size
+        self.mask_pad_value = mask_pad_value
 
-    def __call__(self, images, masks=None):
-        """
+    def __call__(self, image, mask):
+        ih, iw = image.height, image.width
+        ch, cw = self.crop_size
 
-        Args:
-            images: 3-D tensor of shape [height, width, channel]
-            masks: 2-D tensor of shape [height, width]
+        if ch > ih or cw > iw:
+            ph = ch - ih
+            pw = cw - iw
+            image = F.pad(image, (0, 0, pw, ph), 0)
+            mask = F.pad(mask, (0, 0, pw, ph), self.mask_pad_value)
 
-        Returns:
-            images_tensor
-            masks_tensor
-        """
-        im_h, im_w, _ = images.shape
-        c_h, c_w = self.crop_size
+        ih, iw = image.height, image.width
 
-        pad_h = c_h - im_h
-        pad_w = c_w - im_w
-        if pad_h > 0 or pad_w > 0:
-            images = F.pad(images, [0, 0, 0, max(pad_w, 0), 0, max(pad_h, 0)], mode='constant', value=0)
-            masks = F.pad(masks, [0, max(pad_w, 0), 0, max(pad_h, 0)], mode='constant', value=0)
-        im_h, im_w, _ = images.shape
+        ylim = ih - ch + 1
+        xlim = iw - cw + 1
 
-        y_lim = im_h - c_h + 1
-        x_lim = im_w - c_w + 1
-        ymin = int(np.random.randint(0, y_lim, 1))
-        xmin = int(np.random.randint(0, x_lim, 1))
+        ymin = random.randint(0, ylim)
+        xmin = random.randint(0, xlim)
 
-        xmax = xmin + c_w
-        ymax = ymin + c_h
-        ret = list()
-        images_tensor = images[ymin:ymax, xmin:xmax, :]
-        ret.append(images_tensor)
-        if masks is not None:
-            masks_tensor = masks[ymin:ymax, xmin:xmax]
-            ret.append(masks_tensor)
-
-        return tuple(ret)
+        image = F.crop(image, ymin, xmin, ch, cw)
+        mask = F.crop(mask, ymin, xmin, ch, cw)
+        return image, mask
 
 
-class THRandomScale(nn.Module):
-    def __init__(self, scale_range=(0.5, 2.0), scale_step=0.25):
-        super(THRandomScale, self).__init__()
-        scale_factors = np.linspace(scale_range[0], scale_range[1],
-                                    int((scale_range[1] - scale_range[0]) / scale_step) + 1)
-        self.scale_factor = np.random.choice(scale_factors, size=1)[0]
+class DivisiblePad(object):
+    def __init__(self, size_divisor, mask_pad_value=255):
+        self.size_divisor = size_divisor
+        self.mask_pad_value = mask_pad_value
 
-    def __call__(self, images, masks=None):
-        """
+    def __call__(self, image, mask=None):
+        ph = math.ceil(image.height / self.size_divisor) * self.size_divisor - image.height
+        pw = math.ceil(image.width / self.size_divisor) * self.size_divisor - image.width
 
-        Args:
-            images: 3-D tensor of shape [height, width, channel]
-            masks: 2-D tensor of shape [height, width]
+        if ph == 0 and pw == 0:
+            if mask is None:
+                return image
+            return image, mask
 
-        Returns:
-            images_tensor
-            masks_tensor
-        """
-        ret = list()
-        _images = images.permute(2, 0, 1)[None, :, :, :]
-        images_tensor = F.interpolate(_images, scale_factor=self.scale_factor, mode='bilinear', align_corners=True)
-        images_tensor = images_tensor[0].permute(1, 2, 0)
-        ret.append(images_tensor)
-        if masks is not None:
-            masks_tensor = F.interpolate(masks[None, None, :, :], scale_factor=self.scale_factor, mode='nearest')[0][0]
-            ret.append(masks_tensor)
-
-        return tuple(ret)
+        image = F.pad(image, (0, 0, pw, ph), 0)
+        if mask is None:
+            return image
+        mask = F.pad(mask, (0, 0, pw, ph), self.mask_pad_value)
+        return image, mask
