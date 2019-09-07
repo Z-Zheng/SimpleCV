@@ -104,7 +104,7 @@ class Launcher(object):
                     if name not in loss_dict:
                         loss_dict[name] = 0.0
                     loss_dict[name] += value.item()
-                    loss_dict['total_loss'] += sum(list(loss_dict.values()))
+                loss_dict['total_loss'] += sum(list(loss_dict.values()))
             # extra log message
             log_dict = {k: v for k, v in msg_dict.items() if not k.endswith('loss')}
             with torch.no_grad():
