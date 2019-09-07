@@ -17,8 +17,14 @@ class ToTensor(object):
         self.image_keep_255 = image_keep_255
 
     def __call__(self, image, mask=None):
+        if isinstance(image, np.ndarray) and image.dtype != np.uint8:
+            if self.image_keep_255:
+                return F.to_tensor(image)
+            else:
+                return F.to_tensor(image).div(255.)
+
         if self.image_keep_255:
-            image = 255 * F.to_tensor(image)
+            image = 255. * F.to_tensor(image)
         else:
             image = F.to_tensor(image)
         if mask is None:
