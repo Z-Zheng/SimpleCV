@@ -33,7 +33,36 @@ def conv_with_kaiming_uniform(use_gn=False, use_relu=False):
     return make_conv
 
 
+def convbn_with_kaiming_uniform(use_relu=False):
+    def make_conv(
+            in_channels, out_channels, kernel_size, stride=1, dilation=1
+    ):
+        conv = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=dilation * (kernel_size - 1) // 2,
+            dilation=dilation,
+            bias=True
+        )
+        # Caffe2 implementation uses XavierFill, which in fact
+        # corresponds to kaiming_uniform_ in PyTorch
+        nn.init.kaiming_uniform_(conv.weight, a=1)
+        nn.init.constant_(conv.bias, 0)
+        module = [conv, nn.BatchNorm2d(out_channels)]
+        if use_relu:
+            module.append(nn.ReLU(inplace=True))
+        if len(module) > 1:
+            return nn.Sequential(*module)
+        return conv
+
+    return make_conv
+
+
 default_conv_block = conv_with_kaiming_uniform(use_gn=False, use_relu=False)
+conv_bn_block = convbn_with_kaiming_uniform(use_relu=False)
+conv_bn_relu_block = convbn_with_kaiming_uniform(use_relu=True)
 
 
 class FPN(nn.Module):
