@@ -88,7 +88,10 @@ class Prefetcher(object):
     def next(self):
         torch.cuda.current_stream().wait_stream(self.stream)
         data = self.data
-        self.preload()
+        try:
+            self.preload()
+        except StopIteration:
+            raise StopIteration
         return data
 
     def preload(self):
