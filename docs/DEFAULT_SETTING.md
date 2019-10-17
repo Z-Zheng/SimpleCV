@@ -23,5 +23,6 @@ train=dict(
         # `normal` or `prefetched`
         iterator_type='normal',
         save_ckpt_interval_epoch=1,
+        eval_interval_epoch=1,
     )
 ```
