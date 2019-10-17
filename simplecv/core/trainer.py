@@ -146,13 +146,14 @@ class Launcher(object):
         summary_weights = kwargs.get('summary_weights', False)
         iterator_type = kwargs.get('iterator_type', 'normal')
         save_ckpt_interval_epoch = kwargs.get('save_ckpt_interval_epoch', 1)
+        eval_interval_epoch = kwargs.get('eval_interval_epoch', 1)
 
         iterator = get_iterator(iterator_type)(train_data_loader)
 
         call_backs = [(self._ckpt.save, save_ckpt_interval_epoch)]
         signal_loss_dict = dict()
         if eval_per_epoch:
-            call_backs.append(functools.partial(self.evaluate, test_data_loader, kwargs))
+            call_backs.append((functools.partial(self.evaluate, test_data_loader, kwargs), eval_interval_epoch))
         while self._ckpt.global_step < num_iters:
             start = time.time()
             if distributed:
