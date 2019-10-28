@@ -70,7 +70,7 @@ def run(local_rank, config_path, model_dir, cpu_mode=False, after_construct_laun
     tl.logger.info('sync bn: {}'.format('True' if cfg['train'].get('sync_bn', False) else 'False'))
     tl.logger.info('external parameter: {}'.format(opts))
     tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
-
+    return dict(config=cfg, launcher=tl)
 
 if __name__ == '__main__':
     args = parser.parse_args()
