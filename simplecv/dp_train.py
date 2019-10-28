@@ -59,6 +59,7 @@ def run(config_path, model_dir, cpu_mode=False, after_construct_launcher_callbac
 
     tl.logger.info('external parameter: {}'.format(opts))
     tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
+    return dict(config=cfg, launcher=tl)
 
 
 if __name__ == '__main__':

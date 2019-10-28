@@ -103,7 +103,7 @@ def run(local_rank,
             f(tl)
 
     tl.train_by_config(traindata_loader, config=merge_dict(cfg['train'], cfg['test']), test_data_loader=testdata_loader)
-
+    return dict(config=cfg, launcher=tl)
 
 if __name__ == '__main__':
     args = parser.parse_args()
