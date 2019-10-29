@@ -17,6 +17,11 @@
     - DenseNet 201
     - DenseNet 169
 
+- HRNets as Encoder
+    - HRNetv2-w18
+    - HRNetv2-w32
+    - HRNetv2-w40
+
 - GlobalAvgPool2D
 - [AtrousSpatialPyramidPool](https://arxiv.org/abs/1802.02611)
 - SeparableConv2D
