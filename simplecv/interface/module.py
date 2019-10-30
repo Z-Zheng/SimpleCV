@@ -1,22 +1,14 @@
 import torch.nn as nn
-from simplecv.core.config import AttrDict
+from simplecv.interface.configurable import ConfigurableMixin
 
 
-class CVModule(nn.Module):
+class CVModule(nn.Module, ConfigurableMixin):
     def __init__(self, config):
         super(CVModule, self).__init__()
-        self._cfg = AttrDict(
-
-        )
-        self.set_defalut_config()
-        self._cfg.update(config)
+        ConfigurableMixin.__init__(self, config)
 
     def forward(self, *input):
         raise NotImplementedError
 
     def set_defalut_config(self):
         raise NotImplementedError
-
-    @property
-    def config(self):
-        return self._cfg

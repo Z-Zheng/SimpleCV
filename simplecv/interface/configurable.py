@@ -2,6 +2,19 @@ from simplecv.core.config import AttrDict
 
 
 class ConfigurableMixin(object):
+    """
+    Usage 1: for torch.nn.Module
+    >>> import torch.nn as nn
+    >>> class Custom(nn.Module, ConfigurableMixin):
+    >>>     def __init__(self, config:AttrDict):
+    >>>         super(Custom,self).__init__()
+    >>>         ConfigurableMixin.__init__(self, config)
+    >>>     def forward(self, *input):
+    >>>         pass
+    >>>     def set_defalut_config(self):
+    >>>         self.config.update(dict())
+    """
+
     def __init__(self, config):
         self._cfg = AttrDict(
 
