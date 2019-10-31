@@ -5,6 +5,8 @@ import numpy as np
 from scipy import sparse
 import torch
 
+EPS = 1e-7
+
 
 class NPPixelMertic(object):
     def __init__(self, num_classes, logdir=None):
@@ -25,7 +27,7 @@ class NPPixelMertic(object):
         diag = np.diag(confusion_matrix)
         denominator = sum_over_row + sum_over_col - diag
 
-        iou_per_class = diag / denominator
+        iou_per_class = diag / (denominator + EPS)
 
         return iou_per_class
 
@@ -33,27 +35,27 @@ class NPPixelMertic(object):
     def compute_recall_per_class(confusion_matrix):
         sum_over_row = np.sum(confusion_matrix, axis=0)
         diag = np.diag(confusion_matrix)
-        recall_per_class = diag / sum_over_row
+        recall_per_class = diag / (sum_over_row + EPS)
         return recall_per_class
 
     @staticmethod
     def compute_precision_per_class(confusion_matrix):
         sum_over_col = np.sum(confusion_matrix, axis=1)
         diag = np.diag(confusion_matrix)
-        precision_per_class = diag / sum_over_col
+        precision_per_class = diag / (sum_over_col + EPS)
         return precision_per_class
 
     @staticmethod
     def compute_overall_accuracy(confusion_matrix):
         diag = np.diag(confusion_matrix)
-        return np.sum(diag) / np.sum(confusion_matrix)
+        return np.sum(diag) / (np.sum(confusion_matrix) + EPS)
 
     @staticmethod
     def compute_F_measure_per_class(confusion_matrix, beta=1.0):
         precision_per_class = NPPixelMertic.compute_precision_per_class(confusion_matrix)
         recall_per_class = NPPixelMertic.compute_recall_per_class(confusion_matrix)
         F1_per_class = (1 + beta ** 2) * precision_per_class * recall_per_class / (
-                (beta ** 2) * precision_per_class + recall_per_class)
+                (beta ** 2) * precision_per_class + recall_per_class + EPS)
 
         return F1_per_class
 
