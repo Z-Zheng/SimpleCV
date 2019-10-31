@@ -1,5 +1,4 @@
 import gdal
-import numpy as np
 from PIL import Image
 
 
@@ -106,13 +105,3 @@ class TiffImage(object):
             'ysize': y_size
         }
 
-
-if __name__ == '__main__':
-    # im = imread(r'D:\2018 Open AI Tanzania Building Footprint Segmentation Challenge\5ae242fd0b093000130afd27.tif')
-    import matplotlib.pyplot as plt
-
-    im = TiffImage.open(
-        r'C:\Users\zhengzhuo\Desktop\gf2\images\GF_2015_R_G_B_NIR.tif')
-    print(im.shape)
-
-    print()
