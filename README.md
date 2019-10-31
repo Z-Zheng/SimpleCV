@@ -22,7 +22,8 @@ pip install --upgrade git+https://github.com/Z-Zheng/SimpleCV.git
 #### Requirements:
 - pytorch == 1.1.0
 - tensorboardX
-- opencv
+- opencv, skimage, sklearn, pillow
+- GDAL
 
 ## Citing SimpleCV
 If you use SimpleCV in your research, please use the following BibTeX entry.
