@@ -4,6 +4,8 @@ import prettytable as pt
 import numpy as np
 from scipy import sparse
 import torch
+import os
+import time
 
 EPS = 1e-7
 
@@ -85,6 +87,7 @@ class NPPixelMertic(object):
         if self.logdir is not None:
             logger = get_console_file_logger('mIoU', logging.INFO, self.logdir)
             logger.info('\n' + tb.get_string())
+            np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time()), dense_cm))
         else:
             print(tb)
         return iou_per_class, miou
@@ -114,5 +117,6 @@ class NPPixelMertic(object):
         if self.logdir is not None:
             logger = get_console_file_logger('PixelMertic', logging.INFO, self.logdir)
             logger.info('\n' + tb.get_string())
+            np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time()), dense_cm))
         else:
             print(tb)
