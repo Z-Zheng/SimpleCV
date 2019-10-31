@@ -1,1 +1,0 @@
-from simplecv._impl.io.geotiff import open as geotiff_open
