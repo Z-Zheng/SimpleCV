@@ -4,7 +4,8 @@ from setuptools import find_packages, setup
 install_requires = [
     'numpy>=1.11.1',
     'tensorboardX==1.7',
-    'prettytable'
+    'prettytable',
+    'Pillow'
 ]
 setup(
     name='simplecv',
@@ -16,7 +17,6 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Utilities',
     ],
