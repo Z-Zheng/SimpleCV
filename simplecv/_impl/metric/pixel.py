@@ -14,6 +14,8 @@ class NPPixelMertic(object):
     def __init__(self, num_classes, logdir=None):
         self.num_classes = num_classes
         self._total = sparse.coo_matrix((num_classes, num_classes), dtype=np.float32)
+        if logdir is not None:
+            os.makedirs(logdir, exist_ok=True)
         self.logdir = logdir
 
     @staticmethod
