@@ -127,6 +127,35 @@ model_extra = dict(
             block='BASIC',
             num_blocks=(4, 4, 4, 4),
             num_channels=(40, 80, 160, 320),
+            fuse_method='SUM')),
+    hrnetv2_w48=dict(
+        stage1=dict(
+            num_modules=1,
+            num_branches=1,
+            block='BOTTLENECK',
+            num_blocks=(4,),
+            num_channels=(64,),
+            fuse_method='SUM'),
+        stage2=dict(
+            num_modules=1,
+            num_branches=2,
+            block='BASIC',
+            num_blocks=(4, 4),
+            num_channels=(48, 96),
+            fuse_method='SUM'),
+        stage3=dict(
+            num_modules=4,
+            num_branches=3,
+            block='BASIC',
+            num_blocks=(4, 4, 4),
+            num_channels=(48, 96, 192),
+            fuse_method='SUM'),
+        stage4=dict(
+            num_modules=3,
+            num_branches=4,
+            block='BASIC',
+            num_blocks=(4, 4, 4, 4),
+            num_channels=(48, 96, 192, 384),
             fuse_method='SUM'))
 )
 
@@ -602,42 +631,67 @@ class HighResolutionNet(nn.Module):
                     m.eval()
 
 
-def hrnetv2_w18(pretrained=False, norm_eval=False, frozen_stages=-1):
+def hrnetv2_w18(pretrained=False, weight_path=None, norm_eval=False, frozen_stages=-1):
     model = HighResolutionNet(model_extra['hrnetv2_w18'], norm_eval, zero_init_residual=False,
                               frozen_stages=frozen_stages)
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['hrnetv2_w18'],
-                                              progress=True)
+        if weight_path is not None:
+            state_dict = torch.load(weight_path)
+        else:
+            state_dict = load_state_dict_from_url(model_urls['hrnetv2_w18'],
+                                                  progress=True)
         model.load_state_dict(state_dict, strict=False)
     return model
 
 
-def hrnetv2_w32(pretrained=False, norm_eval=False, frozen_stages=-1):
+def hrnetv2_w32(pretrained=False, weight_path=None, norm_eval=False, frozen_stages=-1):
     model = HighResolutionNet(model_extra['hrnetv2_w32'], norm_eval, zero_init_residual=False,
                               frozen_stages=frozen_stages)
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['hrnetv2_w32'],
-                                              progress=True)
+        if weight_path is not None:
+            state_dict = torch.load(weight_path)
+        else:
+            state_dict = load_state_dict_from_url(model_urls['hrnetv2_w32'],
+                                                  progress=True)
         model.load_state_dict(state_dict, strict=False)
     return model
 
 
-def hrnetv2_w40(pretrained=False, norm_eval=False, frozen_stages=-1):
+def hrnetv2_w40(pretrained=False, weight_path=None, norm_eval=False, frozen_stages=-1):
     model = HighResolutionNet(model_extra['hrnetv2_w40'], norm_eval, zero_init_residual=False,
                               frozen_stages=frozen_stages)
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['hrnetv2_w40'],
-                                              progress=True)
+        if weight_path is not None:
+            state_dict = torch.load(weight_path)
+        else:
+            state_dict = load_state_dict_from_url(model_urls['hrnetv2_w40'],
+                                                  progress=True)
+        model.load_state_dict(state_dict, strict=False)
+    return model
+
+
+def hrnetv2_w48(pretrained=False, weight_path=None, norm_eval=False, frozen_stages=-1):
+    model = HighResolutionNet(model_extra['hrnetv2_w48'], norm_eval, zero_init_residual=False,
+                              frozen_stages=frozen_stages)
+    if pretrained:
+        if weight_path is not None:
+            state_dict = torch.load(weight_path)
+        else:
+            raise FileNotFoundError('there is not pretrained model for HRNet-w48')
+            state_dict = load_state_dict_from_url(model_urls['hrnetv2_w48'],
+                                                  progress=True)
         model.load_state_dict(state_dict, strict=False)
     return model
 
 
 if __name__ == '__main__':
-    model = hrnetv2_w32(False)
+    model = hrnetv2_w48(False)
     from simplecv.util import param_util
+    import torch
 
+    sd = torch.load(r'C:\Users\zhengzhuo\Downloads\hrnetv2_w48_imagenet_pretrained.pth')
     model.eval()
     param_util.count_model_parameters(model)
-
+    model.load_state_dict(sd, False)
     o = model(torch.ones(1, 3, 256, 256))
     pass
