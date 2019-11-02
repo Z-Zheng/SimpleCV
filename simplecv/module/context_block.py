@@ -147,6 +147,39 @@ class ContextBlock2d(nn.Module):
         return out
 
 
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, inplanes, planes, ratio, stride=1, downsample=None):
+        super(BasicBlock, self).__init__()
+        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.bn1 = nn.BatchNorm2d(planes, momentum=0.1)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(planes, planes)
+        self.bn2 = nn.BatchNorm2d(planes, momentum=0.1)
+        self.downsample = downsample
+        self.stride = stride
+        self.context_block = ContextBlock2d(planes * self.expansion, int(planes * self.expansion * ratio))
+
+    def forward(self, x):
+        residual = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+        out = self.context_block(out)
+        if self.downsample is not None:
+            residual = self.downsample(x)
+
+        out += residual
+        out = self.relu(out)
+
+        return out
+
+
 class Bottleneck(nn.Module):
     expansion = 4
 
@@ -184,6 +217,37 @@ class Bottleneck(nn.Module):
         out = self.relu(out)
 
         return out
+
+
+def plugin_to_basicblock(module: nn.Module, ratio):
+    classname = module.__class__.__name__
+    module_output = module
+    if classname.find('BasicBlock') != -1:
+        module_output = BasicBlock(module.conv1.in_channels,
+                                   module.conv1.out_channels,
+                                   ratio=ratio,
+                                   stride=module.stride,
+                                   downsample=module.downsample)
+        # conv1 bn1
+        param_util.copy_conv_parameters(module.conv1, module_output.conv1)
+        if isinstance(module.bn1, nn.modules.batchnorm._BatchNorm):
+            param_util.copy_bn_parameters(module.bn1, module_output.bn1)
+        elif isinstance(module.bn1, nn.GroupNorm):
+            param_util.copy_weight_bias(module.bn1, module_output.bn1)
+        # conv2 bn2
+        param_util.copy_conv_parameters(module.conv2, module_output.conv2)
+        if isinstance(module.bn2, nn.modules.batchnorm._BatchNorm):
+            param_util.copy_bn_parameters(module.bn2, module_output.bn2)
+        elif isinstance(module.bn2, nn.GroupNorm):
+            param_util.copy_weight_bias(module.bn2, module_output.bn2)
+
+        del module
+        return module_output
+
+    for name, sub_module in module.named_children():
+        module_output.add_module(name, plugin_to_basicblock(sub_module, ratio))
+    del module
+    return module_output
 
 
 def plugin_to_resnet(module: nn.Module, ratio):
@@ -239,3 +303,6 @@ def plugin_to_resnet(module: nn.Module, ratio):
         module_output.add_module(name, plugin_to_resnet(sub_module, ratio))
     del module
     return module_output
+
+
+plugin_to_bottleneck = plugin_to_resnet
