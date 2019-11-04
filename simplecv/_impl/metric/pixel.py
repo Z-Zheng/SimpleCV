@@ -37,14 +37,14 @@ class NPPixelMertic(object):
 
     @staticmethod
     def compute_recall_per_class(confusion_matrix):
-        sum_over_row = np.sum(confusion_matrix, axis=0)
+        sum_over_row = np.sum(confusion_matrix, axis=1)
         diag = np.diag(confusion_matrix)
         recall_per_class = diag / (sum_over_row + EPS)
         return recall_per_class
 
     @staticmethod
     def compute_precision_per_class(confusion_matrix):
-        sum_over_col = np.sum(confusion_matrix, axis=1)
+        sum_over_col = np.sum(confusion_matrix, axis=0)
         diag = np.diag(confusion_matrix)
         precision_per_class = diag / (sum_over_col + EPS)
         return precision_per_class
