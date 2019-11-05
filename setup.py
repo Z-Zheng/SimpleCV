@@ -5,7 +5,8 @@ install_requires = [
     'numpy>=1.11.1',
     'tensorboardX==1.7',
     'prettytable',
-    'Pillow'
+    'Pillow',
+    'albumentations==0.4.2'
 ]
 setup(
     name='simplecv',
