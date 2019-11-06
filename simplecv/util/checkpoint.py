@@ -18,6 +18,7 @@ def is_checkpoint(obj):
         return True
     return False
 
+
 class CheckPoint(object):
     MODEL = 'model'
     OPTIMIZER = 'opt'
