@@ -8,13 +8,13 @@ from simplecv.util import checkpoint
 _logger = logger.get_logger()
 
 
-class EVModule(nn.Module, ConfigurableMixin):
+class CVModule(nn.Module, ConfigurableMixin):
     __Keys__ = ['GLOBAL', ]
 
     def __init__(self, config):
-        super(EVModule, self).__init__()
+        super(CVModule, self).__init__()
         ConfigurableMixin.__init__(self, config)
-        for key in EVModule.__Keys__:
+        for key in CVModule.__Keys__:
             if key not in self.config:
                 self.config[key] = dict()
 
