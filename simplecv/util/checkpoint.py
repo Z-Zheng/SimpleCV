@@ -7,6 +7,18 @@ from simplecv.util.logger import get_logger, save_log, restore_log
 logger = get_logger(__name__)
 
 
+def is_checkpoint(obj):
+    if isinstance(obj, CheckPoint):
+        return True
+    if isinstance(obj, OrderedDict) and all([
+        CheckPoint.MODEL in obj,
+        CheckPoint.OPTIMIZER in obj,
+        CheckPoint.GLOBALSTEP in obj
+    ]):
+        return True
+    return False
+
+
 class CheckPoint(object):
     MODEL = 'model'
     OPTIMIZER = 'opt'
