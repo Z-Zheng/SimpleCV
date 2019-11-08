@@ -617,7 +617,7 @@ def hrnetv2_w18(pretrained=False, weight_path=None, norm_eval=False, frozen_stag
                               frozen_stages=frozen_stages)
     if pretrained:
         if weight_path is not None:
-            state_dict = torch.load(weight_path)
+            state_dict = torch.load(weight_path, map_location=torch.device("cpu"))
         else:
             state_dict = load_state_dict_from_url(model_urls['hrnetv2_w18'],
                                                   progress=True)
@@ -630,7 +630,7 @@ def hrnetv2_w32(pretrained=False, weight_path=None, norm_eval=False, frozen_stag
                               frozen_stages=frozen_stages)
     if pretrained:
         if weight_path is not None:
-            state_dict = torch.load(weight_path)
+            state_dict = torch.load(weight_path, map_location=torch.device("cpu"))
         else:
             state_dict = load_state_dict_from_url(model_urls['hrnetv2_w32'],
                                                   progress=True)
@@ -643,7 +643,7 @@ def hrnetv2_w40(pretrained=False, weight_path=None, norm_eval=False, frozen_stag
                               frozen_stages=frozen_stages)
     if pretrained:
         if weight_path is not None:
-            state_dict = torch.load(weight_path)
+            state_dict = torch.load(weight_path, map_location=torch.device("cpu"))
         else:
             state_dict = load_state_dict_from_url(model_urls['hrnetv2_w40'],
                                                   progress=True)
@@ -656,7 +656,7 @@ def hrnetv2_w48(pretrained=False, weight_path=None, norm_eval=False, frozen_stag
                               frozen_stages=frozen_stages)
     if pretrained:
         if weight_path is not None:
-            state_dict = torch.load(weight_path)
+            state_dict = torch.load(weight_path, map_location=torch.device("cpu"))
         else:
             raise FileNotFoundError('there is not pretrained model for HRNet-w48')
             state_dict = load_state_dict_from_url(model_urls['hrnetv2_w48'],
