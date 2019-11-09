@@ -22,3 +22,14 @@ learning_rate=dict(
         max_iters=30000),
 ),
 ```
+
+### 3. cosine learning rate
+```python
+learning_rate=dict(
+    type='cosine',
+    params=dict(
+        base_lr=0.007,
+        eta_min=1e-6,
+        max_iters=30000),
+),
+```
