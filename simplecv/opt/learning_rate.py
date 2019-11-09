@@ -1,6 +1,7 @@
 import numpy as np
 from simplecv.util import registry
 from simplecv.interface import LearningRateBase
+import math
 
 
 def make_learningrate(config):
@@ -75,4 +76,18 @@ class PolyLearningRate(LearningRateBase):
     def step(self, global_step, optimizer):
         factor = (1 - global_step / self.max_iters) ** self.power
         cur_lr = self.base_lr * factor
+        set_lr(optimizer, cur_lr)
+
+
+@registry.LR.register('cosine')
+class CosineAnnealingLearningRate(LearningRateBase):
+    def __init__(self, base_lr, max_iters, eta_min):
+        super(CosineAnnealingLearningRate, self).__init__(base_lr)
+        self.eta_min = eta_min
+        self.max_iters = max_iters
+
+    def step(self, global_step, optimizer):
+        cur_lr = self.eta_min + 0.5 * (self.base_lr - self.eta_min) * (
+                1 + math.cos(math.pi * global_step / self.max_iters))
+
         set_lr(optimizer, cur_lr)
