@@ -1,4 +1,4 @@
-"""
+""" Modified from offical repo and mmlab's repo of HRNet
 MIT License
 Copyright (c) 2019 Microsoft
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -663,16 +663,3 @@ def hrnetv2_w48(pretrained=False, weight_path=None, norm_eval=False, frozen_stag
                                                   progress=True)
         model.load_state_dict(state_dict, strict=False)
     return model
-
-
-if __name__ == '__main__':
-    model = hrnetv2_w48(False)
-    from simplecv.util import param_util
-    import torch
-
-    sd = torch.load(r'C:\Users\zhengzhuo\Downloads\hrnetv2_w48_imagenet_pretrained.pth')
-    model.eval()
-    param_util.count_model_parameters(model)
-    model.load_state_dict(sd, False)
-    o = model(torch.ones(1, 3, 256, 256))
-    pass
