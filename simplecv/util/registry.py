@@ -1,8 +1,11 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
+
 def _register_generic(module_dict, module_name, module, override=False):
+    module_name = module_name if module_name else module.__name__
     if not override:
         if module_name in module_dict:
             logging.warning('{} has been in module_dict.'.format(module_name))
@@ -27,7 +30,9 @@ class Registry(dict):
         @some_registry.register("foo_modeul_nickname")
         def foo():
             ...
-
+    3): used as decorator when declaring the module named via __name__:
+        @some_registry.register()
+        def foo():
     Access of module is just like using a dictionary, eg:
         f = some_registry["foo_modeul"]
     '''
@@ -35,7 +40,7 @@ class Registry(dict):
     def __init__(self, *args, **kwargs):
         super(Registry, self).__init__(*args, **kwargs)
 
-    def register(self, module_name, module=None, override=False):
+    def register(self, module_name=None, module=None, override=False):
         # used as function call
         if module is not None:
             _register_generic(self, module_name, module, override)
