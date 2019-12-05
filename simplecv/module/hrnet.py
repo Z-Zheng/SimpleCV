@@ -91,6 +91,8 @@ class HRNetEncoder(nn.Module, ConfigurableMixin):
             return 32, 64, 128, 256
         elif self.config.hrnet_type == 'hrnetv2_w40':
             return 40, 80, 160, 320
+        elif self.config.hrnet_type == 'hrnetv2_w48':
+            return 48, 96, 192, 384
         else:
             raise NotImplementedError('{} is not implemented.'.format(self.config.hrnet_type))
 
