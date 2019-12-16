@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 
 __all__ = ['RandomDiscreteScale',
-           'ToTensor']
+           'ToTensor',
+           'ConstantPad']
 
 
 class RandomDiscreteScale(RandomScale):
