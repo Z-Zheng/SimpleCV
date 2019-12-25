@@ -17,6 +17,16 @@ class NPPixelMertic(object):
         if logdir is not None:
             os.makedirs(logdir, exist_ok=True)
         self.logdir = logdir
+        if self.logdir is not None:
+            self._logger = get_console_file_logger('PixelMertic', logging.INFO, self.logdir)
+
+    @property
+    def logger(self):
+        return self._logger
+
+    def reset(self):
+        num_classes = self.num_classes
+        self._total = sparse.coo_matrix((num_classes, num_classes), dtype=np.float32)
 
     @staticmethod
     def compute_iou_per_class(confusion_matrix):
@@ -87,8 +97,7 @@ class NPPixelMertic(object):
             tb.add_row([idx, iou])
         tb.add_row(['mIoU', miou])
         if self.logdir is not None:
-            logger = get_console_file_logger('mIoU', logging.INFO, self.logdir)
-            logger.info('\n' + tb.get_string())
+            self.logger.info('\n' + tb.get_string())
             np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time())), dense_cm)
         else:
             print(tb)
@@ -117,8 +126,7 @@ class NPPixelMertic(object):
         tb.add_row(['OA', overall_accuracy, '-', '-', '-'])
 
         if self.logdir is not None:
-            logger = get_console_file_logger('PixelMertic', logging.INFO, self.logdir)
-            logger.info('\n' + tb.get_string())
+            self.logger.info('\n' + tb.get_string())
             np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time())), dense_cm)
         else:
             print(tb)
