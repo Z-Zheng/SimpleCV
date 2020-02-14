@@ -15,7 +15,7 @@ def dice_loss_with_logits(y_pred: torch.Tensor, y_true: torch.Tensor, smooth_val
     y_pred = y_pred.view(-1)
     y_true = y_true.view(-1)
     mask = y_true == ignore_index
-    valid = 1 - mask
+    valid = ~mask
     y_true = y_true.masked_select(valid).float()
     y_pred = y_pred.masked_select(valid).float()
     return 1. - dice_coeff(y_pred.sigmoid(), y_true, smooth_value)
