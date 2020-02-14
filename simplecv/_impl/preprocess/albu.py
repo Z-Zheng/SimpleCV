@@ -1,4 +1,4 @@
-from albumentations import RandomScale, DualTransform
+from albumentations import RandomScale, DualTransform, PadIfNeeded
 from albumentations.pytorch import ToTensorV2
 import random
 import cv2
@@ -70,5 +70,8 @@ class ConstantPad(DualTransform):
                       constant_values=self.value)
 
     def apply_to_mask(self, img, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, **params):
-        return np.pad(img, ((pad_top, pad_bottom), (pad_left, pad_right), (0, 0)), mode='constant',
+        return np.pad(img, ((pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',
                       constant_values=self.mask_value)
+
+    def get_transform_init_args_names(self):
+        return ("min_height", "min_width", "value", "mask_value")
