@@ -3,7 +3,23 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class SeparableConv2d(nn.Sequential):
+    """
+    for Xception
+    """
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1,
+                 padding=0, dilation=1, bias=True, padding_mode='zeros'):
+        super(SeparableConv2d, self).__init__(
+            nn.Conv2d(in_channels, in_channels, kernel_size, stride, padding, dilation, groups=in_channels,
+                      bias=bias, padding_mode=padding_mode),
+            nn.Conv2d(in_channels, out_channels, 1)
+        )
+
+
 class SeparableConv2D(nn.Module):
+    """
+    for ASPP
+    """
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
                  padding=0, dilation=1, bias=True,
                  use_batchnorm=False,
