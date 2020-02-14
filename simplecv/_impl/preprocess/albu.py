@@ -1,4 +1,4 @@
-from albumentations import RandomScale, PadIfNeeded
+from albumentations import RandomScale, DualTransform
 from albumentations.pytorch import ToTensorV2
 import random
 import cv2
@@ -27,7 +27,7 @@ class ToTensor(ToTensorV2):
         return [self.apply_to_mask(m, **params) for m in masks]
 
 
-class ConstantPad(PadIfNeeded):
+class ConstantPad(DualTransform):
     def __init__(self,
                  min_height=1024,
                  min_width=1024,
@@ -35,7 +35,35 @@ class ConstantPad(PadIfNeeded):
                  mask_value=None,
                  always_apply=False,
                  p=1.0, ):
-        super(ConstantPad, self).__init__(min_height, min_width, None, value, mask_value, always_apply, p)
+        super(ConstantPad, self).__init__(always_apply, p)
+        self.min_height = min_height
+        self.min_width = min_width
+        self.value = value
+        self.mask_value = mask_value
+
+    def update_params(self, params, **kwargs):
+        params = super(ConstantPad, self).update_params(params, **kwargs)
+        rows = params["rows"]
+        cols = params["cols"]
+
+        if rows < self.min_height:
+            h_pad_top = 0
+            h_pad_bottom = self.min_height - rows
+        else:
+            h_pad_top = 0
+            h_pad_bottom = 0
+
+        if cols < self.min_width:
+            w_pad_left = 0
+            w_pad_right = self.min_width - cols
+        else:
+            w_pad_left = 0
+            w_pad_right = 0
+
+        params.update(
+            {"pad_top": h_pad_top, "pad_bottom": h_pad_bottom, "pad_left": w_pad_left, "pad_right": w_pad_right}
+        )
+        return params
 
     def apply(self, img, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, **params):
         return np.pad(img, ((pad_top, pad_bottom), (pad_left, pad_right), (0, 0)), mode='constant',
