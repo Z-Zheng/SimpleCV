@@ -93,7 +93,8 @@ class NPPixelMetric(object):
     def _log_summary(self, table, dense_cm):
         if self.logger is not None:
             self.logger.info('\n' + table.get_string())
-            np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time())), dense_cm)
+            if self.logdir is not None:
+                np.save(os.path.join(self.logdir, 'confusion_matrix-{time}.npy'.format(time=time.time())), dense_cm)
         else:
             print(table)
 
