@@ -18,8 +18,6 @@ class CVModule(nn.Module, ConfigurableMixin):
             if key not in self.config:
                 self.config[key] = dict()
 
-        self.init_from_weightfile()
-
     def forward(self, *input):
         raise NotImplementedError
 
@@ -48,7 +46,7 @@ class CVModule(nn.Module, ConfigurableMixin):
         for k, v in state_dict.items():
             if k.startswith('module.'):
                 k = k.replace('module.', '')
-            if getattr(pattern, 'match', lambda _: True)(k) is not None:
+            if getattr(pattern, 'match', lambda _: False)(k):
                 # ignore
                 continue
             ret[k] = v
