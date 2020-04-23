@@ -76,7 +76,6 @@ class Scale(TestTransform):
         size = (self.input_shape[2], self.input_shape[3])
         inputs = F.interpolate(transformed_inputs, size=size, mode='bilinear',
                                align_corners=True)
-        self.input_shape = None
         return inputs
 
 
