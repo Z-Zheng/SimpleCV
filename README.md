@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/161282115.svg)](https://zenodo.org/badge/latestdoi/161282115)
 <div align="center">
   <img src="https://raw.githubusercontent.com/Z-Zheng/images_repo/master/logo.png"><br><br>
 </div>
