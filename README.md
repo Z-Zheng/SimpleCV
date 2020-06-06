@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/161282115.svg)](https://zenodo.org/badge/latestdoi/161282115)
 <div align="center">
   <img src="https://raw.githubusercontent.com/Z-Zheng/images_repo/master/logo.png"><br><br>
 </div>
@@ -9,7 +10,7 @@ This repo is aimed to simplify training, evaluation and prediction in Pytorch.
 1. Focus on your research rather than training template codes
 2. Dynamic module registration mechanism makes you customize components on the fly
 3. Flexible plugin mechanism for a hackable trainer without any coupling!
-4. High performance parallel training using Pytorch 1.1
+4. High performance parallel training using Pytorch
 5. Support mixed precision training, significantly reducing GPU memory usage with similar performance
 6. Support stable distribute training and Sync BN by offical repo and NVIDIA/apex
 --------------
@@ -20,7 +21,7 @@ pip install --upgrade git+https://github.com/Z-Zheng/SimpleCV.git
 ```
 
 #### Requirements:
-- pytorch == 1.1.0
+- pytorch >= 1.1.0
 - tensorboardX
 - opencv, skimage, sklearn, pillow
 
