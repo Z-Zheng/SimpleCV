@@ -42,9 +42,9 @@ Please refer to [USAGE.md](https://github.com/Z-Zheng/SimpleCV/blob/master/USAGE
 
 ## Projects using SimpleCV
 - 2019 IEEE GRSS Data Fusion Contest, Track1: Single-view semantic 3D challenge, 2nd solution code (Pop-Net)
-- 2020 xView2 Assess Building Damage Challenge, 4th solution code (coming soon)
-- Official implementation of our work: [Foreground-Aware Relation Network for Geospatial Object Segmentation in High Spatial Resolution Remote Sensing Imagery, CVPR 2020]()
-- Official implementation of our work: [FPGA: Fast Patch-Free Global Learning Framework for Fully End-to-End Hyperspectral Image Classification, TGRS 2020]()
+- 2020 xView2 Assess Building Damage Challenge, 4th solution code
+- Official implementation of our work: [Foreground-Aware Relation Network for Geospatial Object Segmentation in High Spatial Resolution Remote Sensing Imagery, CVPR 2020](https://openaccess.thecvf.com/content_CVPR_2020/papers/Zheng_Foreground-Aware_Relation_Network_for_Geospatial_Object_Segmentation_in_High_Spatial_CVPR_2020_paper.pdf)
+- Official implementation of our work: [FPGA: Fast Patch-Free Global Learning Framework for Fully End-to-End Hyperspectral Image Classification, TGRS 2020](https://ieeexplore.ieee.org/document/9007624)
 ## Change logs
 - 2019/10/29 v0.3.4 released! More preset models have been added.
 - 2019/06/25 v0.3.1 released! More features have been added.
