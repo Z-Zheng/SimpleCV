@@ -205,7 +205,7 @@ class Launcher(object):
                 signal_loss_dict = loss_dict.copy()
                 # clip gradient
                 grad_clip_config = self._optimizer.simplecv_config.get('grad_clip', dict(max_norm=35, norm_type=2))
-                clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.module.parameters()),
+                clip_grad.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.parameters()),
                                           **grad_clip_config)
                 if self._master:
                     if kwargs.get('summary_grads', False):
