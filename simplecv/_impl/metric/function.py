@@ -1,6 +1,5 @@
 import torch
 
-
 def th_confusion_matrix(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes=None, to_dense=True):
     """
 
@@ -62,7 +61,7 @@ def th_cohen_kappa_score(y_true: torch.Tensor, y_pred: torch.Tensor, num_classes
 
 def intersection_over_union_per_class(cm_th):
     sum_over_row = cm_th.sum(dim=0)
-    sum_over_col = cm_th.sum(dim=0)
+    sum_over_col = cm_th.sum(dim=1)
     diag = cm_th.diag()
     denominator = sum_over_row + sum_over_col - diag
 
